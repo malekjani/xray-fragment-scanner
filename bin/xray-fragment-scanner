@@ -3,14 +3,18 @@
 set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 XRAY_PATH="/usr/local/bin/xray"
-CONFIG_PATH="$SCRIPT_DIR/config.json"
+CONFIG_PATH="$PROJECT_DIR/config.json"
 
-LOG_FILE="$SCRIPT_DIR/pings.txt"
-XRAY_LOG_FILE="$SCRIPT_DIR/xraylogs.txt"
-XRAY_ERROR_LOG_FILE="$SCRIPT_DIR/xraylogs.error.txt"
-CONFIG_BACKUP="$SCRIPT_DIR/config.json.backup-before-fragment-scanner"
+LOG_DIR="$PROJECT_DIR/logs"
+mkdir -p "$LOG_DIR"
+
+LOG_FILE="$LOG_DIR/pings.txt"
+XRAY_LOG_FILE="$LOG_DIR/xraylogs.txt"
+XRAY_ERROR_LOG_FILE="$LOG_DIR/xraylogs.error.txt"
+CONFIG_BACKUP="$PROJECT_DIR/config.json.backup-before-fragment-scanner"
 
 HTTP_PROXY_SERVER="127.0.0.1"
 XRAY_PID=""
