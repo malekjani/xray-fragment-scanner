@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Reproducible VLESS single/multi-layer FinalMask optimization.
+"""Reproducible VLESS/VMess/Trojan FinalMask optimization.
 
-Every candidate links an unchanged-input VLESS URI (except fm=, optional address)
+Every candidate links an unchanged-input share URI (except fm=, optional address)
 to the exact Xray JSON that is validated and tested. Legacy freedom.fragment
-is intentionally not exported as a shareable VLESS link: all fragment candidates
+is intentionally not exported as a shareable URI: all fragment candidates
 use current Xray FinalMask fragment layers.
 """
 from __future__ import annotations
@@ -26,12 +26,14 @@ from urllib.parse import parse_qsl, quote, unquote, urlsplit, urlunsplit
 from network_scan import (
     MAX_CANDIDATES, PATTNG_TLSHELLO, PATTNG_TLSHELLO_ZERO,
     ZERO_FREE_MASK, extract_finalmask, free_port, get_link,
-    proxy, run_candidate, vless_to_config, write_private_json,
+    proxy, run_candidate, write_private_json,
     expand_addresses,
 )
 
+from share_codec import link_to_config, normalize_link, scheme_and_encoding
+
 RANGE_RE = re.compile(r"^(0|[1-9][0-9]*)(?:-(0|[1-9][0-9]*))?$")
-FIELDS = ["id", "rank", "mode", "profile", "address", "port", "transport",
+FIELDS = ["id", "rank", "protocol", "source_encoding", "mode", "profile", "address", "port", "transport",
           "security", "fingerprint", "sni", "ech", "packets", "lengths",
           "delays", "maxSplit", "fragment_layers", "finalmask_json", "status",
           "successes", "requests", "success_rate", "avg_ms", "p95_ms",
@@ -101,7 +103,8 @@ def share_link(base: str, cfg: dict, marker: str, *, baseline=False) -> str:
     """
     if baseline:
         return base.strip()
-    parsed = urlsplit(base.strip())
+    canonical = normalize_link(base)
+    parsed = urlsplit(canonical)
     params = parse_qsl(parsed.query, keep_blank_values=True)
     if sum(k == "fm" for k, _ in params) > 1:
         raise ValueError("Ambiguous repeated fm query parameter")
@@ -128,9 +131,9 @@ def share_link(base: str, cfg: dict, marker: str, *, baseline=False) -> str:
         updated.append(("fm", fm_value))
     # quote(...safe=...) matches encodeURIComponent for JSON-bearing parameters.
     query = "&".join(f"{quote(k, safe='-_.!~*\'()')}={quote(v, safe='-_.!~*\'()')}" for k, v in updated)
-    label = quote((unquote(parsed.fragment) or "VLESS") + " | " + marker,
+    label = quote((unquote(parsed.fragment) or parsed.scheme.upper()) + " | " + marker,
                   safe="-_.!~*'()")
-    return urlunsplit(("vless", netloc, parsed.path, query, label))
+    return urlunsplit((parsed.scheme, netloc, parsed.path, query, label))
 
 
 def make_candidates(config, scan, addr, packets, lengths, delays, splits,
@@ -229,7 +232,7 @@ def safe_csv(path, columns, rows):
 
 
 def parser():
-    p = argparse.ArgumentParser(description="Repeatable VLESS FinalMask/Fragment optimization with link export")
+    p = argparse.ArgumentParser(description="Repeatable VLESS/VMess/Trojan FinalMask/Fragment optimization with link export")
     p.add_argument("--link-file", type=Path, help="Private file containing the original vless:// link")
     p.add_argument("--scan", choices=["fragment", "finalmask", "both"], default="both")
     p.add_argument("--ip", action="append", default=[], help="Candidate address; default is original address")
@@ -253,7 +256,7 @@ def parser():
     return p
 
 
-def main(argv=None):
+def main(argv=None, *, link_override=None):
     p = parser()
     args = p.parse_args(argv)
     if args.limit < 1 or args.requests < 1 or args.timeout <= 0:
@@ -261,25 +264,16 @@ def main(argv=None):
     xray = args.xray or shutil.which("xray") or "/usr/local/bin/xray"
     if not args.dry_run and (not shutil.which("curl") or not (shutil.which(xray) or os.path.isfile(xray))):
         p.error("Xray and curl required for real tests; try --dry-run for offline config export")
-    orig_link = get_link(args)
-    # Guard the validity of the central promise: an emitted URI must fully
-    # describe the JSON actually tested. Reject fields this parser doesn't map.
-    supported = {"encryption", "security", "sni", "fp", "alpn", "ech", "fm",
-                 "type", "host", "path", "flow", "mode", "serviceName",
-                 "allowInsecure", "insecure", "cs", "cipherSuites", "pcs",
-                 "vcn", "pbk", "password", "sid", "spx"}
-    seen_keys = [key for key, _ in parse_qsl(urlsplit(orig_link).query,
-                                             keep_blank_values=True)]
-    unsupported = sorted(set(seen_keys) - supported)
-    duplicates = sorted({key for key in seen_keys if seen_keys.count(key) > 1})
-    if unsupported or duplicates:
-        raise ValueError("Cannot safely test and export: unmapped fields " +
-                         ",".join(unsupported) + "; repeated fields " + ",".join(duplicates))
-    config = vless_to_config(orig_link)
+    orig_link = link_override if link_override is not None else get_link(args)
+    scheme, source_encoding = scheme_and_encoding(orig_link)
+    canonical_link = normalize_link(orig_link)
+    if source_encoding == "legacy-qr":
+        print("Note: modified VMess QR links export in VMess AEAD URI format; client compatibility must be checked.")
+    config = link_to_config(orig_link)
     original_addr = proxy(config)["settings"]["address"]
     address_set = expand_addresses(args.ip) if args.ip else [original_addr]
-    if proxy(config)["streamSettings"]["security"] not in ("tls", "reality"):
-        p.error("optimize currently requires TLS/REALITY transport")
+    if proxy(config)["streamSettings"]["security"] not in ("tls", "reality", "none"):
+        p.error("Unsupported transport security")
     packets = [validate_packets(x) for x in (args.packets or DEFAULT_PACKETS)]
     lengths = [",".join(parse_array(x, final_nonzero=True)) for x in (args.lengths or DEFAULT_LENGTHS)]
     delays = [",".join(parse_array(x)) for x in (args.delays or DEFAULT_DELAYS)]
@@ -317,7 +311,7 @@ def main(argv=None):
         candidate["inbounds"][0]["port"] = free_port()
         link = share_link(orig_link, candidate, id_, baseline=(mode == "baseline"))
         # Verify that every exported fm fragment round-trips identically to tested JSON.
-        parsed_back = vless_to_config(link)
+        parsed_back = link_to_config(link)
         a, b = proxy(candidate), proxy(parsed_back)
         if (a["settings"] != b["settings"] or a["streamSettings"] != b["streamSettings"]):
             raise ValueError("Share link round-trip mismatch for " + id_)
@@ -335,7 +329,8 @@ def main(argv=None):
         finally:
             tmp.unlink(missing_ok=True)
         info = summarize_parameters(candidate)
-        row = {"id": id_, "rank": "", "mode": mode, "profile": profile,
+        row = {"id": id_, "rank": "", "protocol": scheme, "source_encoding": source_encoding,
+               "mode": mode, "profile": profile,
                **info, "status": status, "successes": count, "requests": args.requests,
                "success_rate": round(count / args.requests, 5), "avg_ms": avg if avg is not None else "",
                "p95_ms": percentile95(elapsed) if elapsed else "",
@@ -345,7 +340,8 @@ def main(argv=None):
         results.append(row)
         links_rows.append({"id": id_, "link": link})
         actual_links.append(link)
-        manifest.append({"id": id_, "profile": profile, "mode": mode,
+        manifest.append({"id": id_, "protocol": scheme, "source_encoding": source_encoding,
+                         "profile": profile, "mode": mode,
                          "fragment_layers": json.loads(info["fragment_layers"]),
                          "finalmask": json.loads(info["finalmask_json"]) if info["finalmask_json"] else None,
                          "link_sha256": row["link_sha256"],
@@ -362,13 +358,15 @@ def main(argv=None):
     safe_text_file(output / "manifest.jsonl", [json.dumps(m, ensure_ascii=False) for m in manifest])
     summary = {"dry_run": args.dry_run, "generated": len(results),
                "ranking_method": "success_rate desc, p95_ms asc, avg_ms asc; dry_run is unranked",
-               "source_link_unchanged": True,
+               "source_link_unchanged": True, "protocol": scheme, "source_encoding": source_encoding,
                "note": "Every ID joins results.csv, links.csv, manifest.jsonl; no actual success in dry-run"}
     winners = [r for r in ranked if not args.dry_run and r["successes"] == args.requests]
     if winners:
         best = winners[0]
         idx = results.index(best)
-        safe_text_file(output / "best-vless.txt", [actual_links[idx]])
+        safe_text_file(output / "best-link.txt", [actual_links[idx]])
+        if scheme == "vless":
+            safe_text_file(output / "best-vless.txt", [actual_links[idx]])
         best_cfg = configs[idx][-1]
         write_private_json(output / "best-config.json", best_cfg)
         summary["best_id"] = best["id"]

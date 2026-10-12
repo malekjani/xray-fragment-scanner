@@ -155,3 +155,46 @@ See [docs/NETWORK_SCAN.md](docs/NETWORK_SCAN.md) for CLI options, examples,
 Xray 2026 compatibility notes and testing caveats. Network experiments do not
 need `sudo` and do not restart the system's Xray service; the original
 fragment scanner (menu choice 1) still needs root for its old workflow.
+
+## Optimize a VLESS link: reproducible fragment / FinalMask scans
+
+New menu **4** or `--method optimize` scans **one-layer Fragment**, **multiple-layer FinalMask**,
+(or both) using the modern Xray `streamSettings.finalmask.tcp` schema. It **does not silently
+rewrite ECH, TLS fingerprint, SNI, encryption, transport, WebSocket Host/path, certificate
+pins, or other share-link values**. Only the chosen Fragment layers are replaced; existing
+non-fragment FinalMask TCP layers and its UDP/QUIC layers are retained. Unsupported share-link
+fields and duplicate query keys fail closed rather than yielding misleading benchmarks.
+
+The share-link standard has an `fm` field, **not a portable legacy freedom.fragment link
+parameter**. Consequently `--scan fragment` creates one FinalMask fragment layer with the
+corresponding importable `fm` share-link. The old `freedom.fragment` scanner remains option 1.
+
+```bash
+# Put your own VLESS URI in a private input file, not in shell history.
+chmod 600 ~/private-vless.txt
+./bin/xray-finalmask-scanner --method optimize \
+  --link-file ~/private-vless.txt --scan both --requests 5 --limit 25
+
+# Explicit Xray lengths/delays arrays; optional second layer:
+./bin/xray-finalmask-scanner --method optimize \
+  --link-file ~/private-vless.txt --scan both \
+  --packets tlshello --lengths '0,104,1' --lengths '6,98,1' \
+  --delays '0' --delays '1,1-5' --max-split 0 \
+  --layer2-packets '1-1' --layer2-lengths '114,1' \
+  --layer2-delays '1' --layer2-max-split '11' --all
+
+# Offline candidate/link generation, no connectivity claims:
+./bin/xray-finalmask-scanner --method optimize \
+  --link-file ~/private-vless.txt --dry-run --limit 20
+```
+
+The private output directory (`~/.local/share/xray-finalmask-scanner/optimize-*`, permissions
+`0700`) contains `results.csv`, `ranked.csv`, `links.csv`, `links.txt`, `manifest.jsonl`,
+and `summary.json` (`0600`). Each `OPT-XXXX` ID joins **the actual tested JSON values,
+per-request successful HTTPS timings, the complete modified VLESS URI, and SHA-256 of the URI**.
+`fragment_layers` contains exact arrays (`packets`, `lengths`, `delays`, `maxSplit`) for
+all layers. HTTPS success rate, mean, P95 and min/max are reported; this is **not ICMP ping**.
+The best fully successful candidate produces `best-vless.txt` and `best-config.json`.
+`--dry-run` generates all sampled links without claiming successful tests or naming a winner.
+
+Read [docs/OPTIMIZE.md](docs/OPTIMIZE.md) before distributing links or interpreting results.

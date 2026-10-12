@@ -13,14 +13,18 @@ if [[ "${1:-}" == "--method" ]]; then
     exec python3 "$PROJECT_ROOT/lib/network_scan.py" "$@"
 fi
 
-if [[ $# -eq 0 ]]; then
+if [[ $# -eq 0 || "${1:-}" == "--interactive" || "${1:-}" == "--wizard" ]]; then
+    exec python3 "$PROJECT_ROOT/lib/wizard.py"
+fi
+
+if [[ "${1:-}" == "--legacy-menu" ]]; then
     echo "Xray Finalmask Scanner"
     echo "1) Existing fragment modes (legacy, finalmask, header-custom)"
     echo "2) IP + ECH matrix (Rightel / MCI experiment)"
     echo "3) IP + FinalMask / unsafe / cipher matrix (Irancell experiment)"
     echo "4) Optimize fragments/finalmask + export VLESS links and analytics"
-    read -r -p "Select [1]: " startup_mode
-    case "${startup_mode:-1}" in
+    read -r -p "Select [4]: " startup_mode
+    case "${startup_mode:-4}" in
         2) exec python3 "$PROJECT_ROOT/lib/network_scan.py" --method ech ;;
         3) exec python3 "$PROJECT_ROOT/lib/network_scan.py" --method irancell ;;
         4) exec python3 "$PROJECT_ROOT/lib/optimize.py" ;;

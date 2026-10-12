@@ -1,3 +1,15 @@
+## New interactive entry point
+
+Run `./bin/xray-finalmask-scanner` with no options to start the six-step
+VLESS, VMess or Trojan assistant. See [WIZARD.md](WIZARD.md). Existing
+non-interactive `--method optimize` and all its flags remain supported.
+
+VMess Base64 QR links are accepted as input; variants are exported in
+VMess AEAD URI syntax because the legacy format cannot reliably express fm.
+Trojan retains its password, TLS, SNI, ECH, WebSocket and FinalMask
+settings. Every link is decoded again for Xray configuration parity before
+any network request. Supported fields are deliberately conservative.
+
 # VLESS share-link optimization and analysis
 
 ## What is tested / exported
