@@ -9,7 +9,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Validate scanner syntax and Python tests
         run: |
-          python3 -m py_compile lib/network_scan.py lib/optimize.py lib/share_codec.py lib/wizard.py lib/diagnose.py lib/xray_errors.py
+          python3 -m py_compile lib/network_scan.py lib/optimize.py lib/share_codec.py lib/wizard.py lib/diagnose.py lib/xray_errors.py lib/core_manager.py
           python3 -m unittest discover -s tests -v
           bash -n bin/xray-finalmask-scanner
           bash -n lib/config.sh lib/scanner.sh

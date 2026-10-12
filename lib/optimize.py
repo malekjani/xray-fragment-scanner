@@ -31,6 +31,7 @@ from network_scan import (
 )
 
 from share_codec import link_to_config, normalize_link, scheme_and_encoding
+from core_manager import resolve_core, core_identity, CoreError
 
 RANGE_RE = re.compile(r"^(0|[1-9][0-9]*)(?:-(0|[1-9][0-9]*))?$")
 FIELDS = ["id", "rank", "protocol", "source_encoding", "mode", "profile", "address", "port", "transport",
@@ -261,9 +262,9 @@ def main(argv=None, *, link_override=None):
     args = p.parse_args(argv)
     if args.limit < 1 or args.requests < 1 or args.timeout <= 0:
         p.error("--limit, --requests and --timeout must be positive")
-    xray = args.xray or shutil.which("xray") or "/usr/local/bin/xray"
-    if not args.dry_run and (not shutil.which("curl") or not (shutil.which(xray) or os.path.isfile(xray))):
-        p.error("Xray and curl required for real tests; try --dry-run for offline config export")
+    xray = resolve_core(args.xray, dry_run=args.dry_run)
+    if not args.dry_run and not shutil.which("curl"):
+        p.error("curl is required for live HTTPS probes")
     orig_link = link_override if link_override is not None else get_link(args)
     scheme, source_encoding = scheme_and_encoding(orig_link)
     canonical_link = normalize_link(orig_link)
@@ -363,6 +364,7 @@ def main(argv=None, *, link_override=None):
     safe_text_file(output / "links.txt", actual_links)
     safe_text_file(output / "manifest.jsonl", [json.dumps(m, ensure_ascii=False) for m in manifest])
     summary = {"dry_run": args.dry_run, "generated": len(results),
+               "xray_core": core_identity(xray),
                "ranking_method": "success_rate desc, p95_ms asc, avg_ms asc; dry_run is unranked",
                "source_link_unchanged": True, "protocol": scheme, "source_encoding": source_encoding,
                "note": "Every ID joins results.csv, links.csv, manifest.jsonl; no actual success in dry-run"}
@@ -387,7 +389,7 @@ def main(argv=None, *, link_override=None):
 if __name__ == "__main__":
     try:
         sys.exit(main())
-    except (ValueError, OSError, json.JSONDecodeError) as exc:
+    except (ValueError, OSError, json.JSONDecodeError, CoreError) as exc:
         # Do not include raw credentials or URI in exception messages.
         print(f"Error ({type(exc).__name__}): {str(exc)[:160]}", file=sys.stderr)
         sys.exit(2)

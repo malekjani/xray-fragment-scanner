@@ -7,46 +7,12 @@ capture_xray_service_state() {
 }
 
 install_or_update_xray() {
-    local latest_version=""
-    local installed_version=""
-
-    echo "Checking Xray version..."
-
-    latest_version="$(
-        curl -fsSL https://api.github.com/repos/XTLS/Xray-core/releases/latest \
-        | jq -r '.tag_name' \
-        | sed 's/^v//'
-    )"
-
-    if [[ -z "$latest_version" || "$latest_version" == "null" ]]; then
-        echo "Error: Could not detect latest Xray version."
-        exit 1
-    fi
-
-    if [[ -x "$XRAY_PATH" ]]; then
-        installed_version="$("$XRAY_PATH" version 2>/dev/null | awk 'NR==1 {print $2}' | sed 's/^v//')"
-
-        if [[ -z "$installed_version" ]]; then
-            installed_version="$("$XRAY_PATH" -version 2>/dev/null | awk 'NR==1 {print $2}' | sed 's/^v//')"
-        fi
-    fi
-
-    if [[ -z "$installed_version" ]]; then
-        echo "Xray is not installed. Installing latest version: $latest_version"
-        bash -c "$(curl -fsSL https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install
-    elif [[ "$installed_version" != "$latest_version" ]]; then
-        echo "Xray update required."
-        echo "Installed: $installed_version"
-        echo "Latest:    $latest_version"
-        bash -c "$(curl -fsSL https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install
-    else
-        echo "Xray is already up to date: $installed_version"
-    fi
-
-    if [[ ! -x "$XRAY_PATH" ]]; then
-        echo "Error: Xray binary not found at $XRAY_PATH"
-        exit 1
-    fi
+    # Historical explicit mode only; NEVER run a remote install script or replace
+    # /usr/local/bin/xray. Use the same user-local verified prerelease as modern modes.
+    local resolved
+    resolved="$(python3 "$PROJECT_ROOT/lib/core_manager.py" --ensure)" || return 1
+    XRAY_PATH="$resolved"
+    echo "Historical mode uses verified pre-release: $XRAY_PATH"
 }
 
 stop_xray_process() {
