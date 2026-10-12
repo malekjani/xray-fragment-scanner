@@ -58,3 +58,16 @@ sudo ./bin/xray-finalmask-scanner \
       against PattNG source/export, rather than assuming a public sample.
 - [ ] Validate on actual Iran mobile networks and tune timeouts/weights.
 - [ ] Add transport-aware throughput and jitter tests.
+
+## Latest improvements (October 2026)
+
+- [x] Step-by-step VLESS, VMess (AEAD / legacy Base64 QR) and Trojan wizard.
+- [x] Optimizer preserving TLS/ECH/WS/etc. with multi-layer FinalMask fragment arrays.
+- [x] Unique share link + ID + CSV ranking + JSONL metrics for every optimization candidate.
+- [x] IP/ECH scanner preserves original fingerprint and FinalMask by default; optional `--ech-chrome`.
+- [x] Irancell scanner preserves ECH, fingerprint and original non-Fragment masks by default; explicit `--tls-profile pattng-unsafe`.
+- [x] IP/ECH and Irancell modes export verified per-ID VLESS links and detailed CSV/JSONL tables.
+- [x] Legacy Bash VLESS parser retains ECH/ciphers/certificate pinning and existing FinalMask.
+- [x] Exact PattNG `tlshello-0-len` and Firefox cipher presets imported from supplied resource/test definitions.
+- [ ] Run on multiple real ISPs / networks and record success, throughput and jitter over time.
+- [ ] Validate import compatibility with the exact app/core versions used in production.

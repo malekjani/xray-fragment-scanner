@@ -1,96 +1,164 @@
-# User-defined IP, ECH and PattNG FinalMask scanning (October 2026)
+# Configurable IP / ECH / PattNG FinalMask scanning
 
-The seven IPs and eighteen resolvers from the original writeup are **examples**,
-not a whitelist or hardcoded working set. The CLI accepts IPs, IPv6, hostnames,
-CIDR ranges, complete ECH expressions and ECH lookup domain/resolver pairs.
+This module is independent of the legacy fragment scanner. It does **not**
+install packages, stop system services, request root privileges, or automatically
+change a production profile. It loads a VLESS link (including `ech`, `fm`,
+`encryption`, SNI, Host and path) and probes each configuration with a local
+Xray instance. Neither the original seven IPs nor the eighteen DNS resolvers
+are whitelists, guarantees, or claims of being reachable.
 
-## How to run
+## Interactive mode
 
-```sh
-# Interactive: menu 2 for ECH, 3 for FinalMask, then enter a VLESS link
+```bash
 ./bin/xray-finalmask-scanner
-
-# Read link ECH + seven original example IPs, with optional interactive prompts
-./bin/xray-finalmask-scanner --method ech --link-file ~/private-vless.txt
-
-# User-supplied addresses and ECH expressions (no example IPs)
-./bin/xray-finalmask-scanner --method ech --link-file ~/private-vless.txt \
-  --ip 188.114.97.1 --ip 198.51.100.2 \
-  --ech 'cloudflare-ech.com+udp://9.9.9.9' \
-  --ech 'crypto.cloudflare.com+https://1.1.1.1/dns-query' \
-  --all --no-prompt
-
-# Use lists from files; ECH domain and resolver cross-product is optional
-./bin/xray-finalmask-scanner --method ech --link-file ~/private-vless.txt \
-  --ip-file ./addresses.txt --ech-file ./ech-list.txt \
-  --ech-domain crypto.cloudflare.com \
-  --ech-resolver 'https://1.1.1.1/dns-query' --no-prompt
-
-# Re-enable the historical 18 resolver samples (using the domain from your link)
-./bin/xray-finalmask-scanner --method ech --link-file ~/private-vless.txt \
-  --example-ech --all --no-prompt
-
-# Exact PattNG FinalMask and Firefox cipher presets
-./bin/xray-finalmask-scanner --method irancell --link-file ~/private-vless.txt \
-  --ip 188.114.97.1 --all --no-prompt
-
-# Generate candidate configurations without network access or Xray
-./bin/xray-finalmask-scanner --method ech --link-file ~/private-vless.txt \
-  --dry-run --limit 10 --no-prompt
+# 2 = IP / ECH
+# 3 = IP / FinalMask + native TLS / cipherSuites
 ```
 
-Address file: one IP/hostname/CIDR per line, comments begin with `#`.
-ECH file: **complete** Xray ECHConfigList expressions, one per line.
-CLI options `--ip`, `--ech`, `--ech-domain`, `--ech-resolver` are repeatable.
-Bare resolver IPs become `udp://IP`. `--example-ips` appends example IPs
-even when custom IPs are provided; `--example-ech` opts into the former
-18-resolver sample using your link's ECH lookup domain. If the VLESS link
-has no ECH and none is supplied, a *single, unverified* sample expression is used.
-`--no-link-ech` excludes the source link's ECH from candidate variants.
-Each scan keeps the untouched link as the baseline; it is never automatically
-rewritten in the original profile.
+The program asks for a VLESS link with hidden terminal echo, then offers to
+add or replace candidate IP/host/CIDR addresses. Mode 2 additionally offers
+custom **full ECH expressions**, ECH lookup domains, DNS resolver URIs, and
+an optional 18-resolver historical sample set. Enter accepts the defaults.
+An interactive session is detected only when stdin is a TTY. In scripts, use
+`--no-prompt` and pass values using CLI options or files.
 
-## Exact PattNG resources
+## ECH input logic
 
-The supplied PattNG `FieldPresetsTest.kt` and `strings.xml` contain:
-- `profiles/pattng-tlshello-0-len.json`: first fragment
-  `tlshello / lengths=[0,104,1] / delays=[0] / maxSplit=0`, then
-  `1-1 / lengths=[114,1] / delays=[1] / maxSplit=11`.
-- `profiles/pattng-tlshello.json`: first fragment
-  `tlshello / lengths=[6,98,1] / delays=[0] / maxSplit=0`, then same second.
-- `profiles/pattng-real-firefox-cipherSuites.txt`: **12 exact suites**.
+- Original `ech=` from the VLESS link is included **verbatim** as a candidate,
+  unless `--no-link-ech` is requested. Original full VLESS configuration is
+  always evaluated as a baseline.
+- If no custom IPs are supplied, the seven example Cloudflare IPs are offered.
+  Explicit `--ip`, `--ip-file` replace those examples, unless `--example-ips`
+  is set. Hostnames, IPv4, IPv6 and CIDR ranges work (up to 4096 expanded IPs).
+- Multiple `--ech` or lines of `--ech-file` accept **complete Xray expressions**
+  such as `cloudflare-ech.com+udp://1.1.1.1`, `udp://8.8.8.8`,
+  `crypto.cloudflare.com+https://1.1.1.1/dns-query` or an ECHConfig blob.
+- `--ech-domain` and `--ech-resolver` produce a cross product. Resolvers can
+  be `udp://`, `tcp://`, `https://`/DoH, `h2c://`, etc. A bare resolver IP
+  expands to `udp://IP`. When no domain is supplied, reuse the named lookup
+  domain from the VLESS link; if the link uses bare `udp://`, use bare lookups.
+- `--example-ech` explicitly enables the previous eighteen *example* resolver
+  addresses. Crucially, it reuses **the ECH domain in the VLESS link** rather
+  than silently hardcoding `cloudflare-ech.com`.
+- With no ECH link or custom expression, the single demonstration default is
+  `cloudflare-ech.com+udp://1.1.1.1`. This is not a verified working choice.
+- Candidate generation deduplicates exact values, includes the baseline, and
+  uses deterministic IP-balanced subsampling unless `--all` is requested.
 
-The Irancell-mode scan evaluates both literal PattNG masks, a zero-free
-alternative and no mask; it uses `fingerprint=unsafe` to test native Go TLS
-with either its default cipher set or the exact PattNG cipher list.
-`unsafe` here does **not** disable certificate validation. A non-final zero
-in `lengths` is allowed under current upstream FinalMask docs, but may fail
-for specific peers/networks. It must be actually tested.
+### Examples
 
-## Xray upstream compatibility (reviewed 2026-10-12)
+```bash
+# Auto: VLESS ECH + example IPs, with opportunity to add values interactively
+./bin/xray-finalmask-scanner --method ech --link-file ~/private-vless.txt
 
-- FinalMask: https://github.com/XTLS/Xray-docs-next/blob/main/docs/en/config/transports/finalmask.md
-  (ordered TCP masking layers, `packets`, `lengths`, `delays`, `maxSplit`).
-- TLS and ECH: https://github.com/XTLS/Xray-docs-next/blob/main/docs/en/config/transports/tls.md
-  (`echConfigList` supports a static ECHConfig, `udp://`, DoH or
-  `domain+resolver`, and offers `echSockopt` for DNS connection settings).
-- uTLS can override other TLS settings; use native TLS when evaluating ciphers.
-  ALPN has special treatment for WebSocket/HTTPUpgrade using ECH; the scanner
-  preserves the source-link ALPN rather than guessing.
-- Xray-core stable `v26.3.27` includes FinalMask and TLS ECH updates;
-  the newer `v26.10.10` published on Oct 10 is a **prerelease**.
-  https://github.com/XTLS/Xray-core/releases
+# Use IPs/CIDRs from a custom file, two complete ECH expressions, no samples
+./bin/xray-finalmask-scanner --method ech --link-file ~/private-vless.txt \
+    --ip-file ./addresses.txt \
+    --ech 'cloudflare-ech.com+udp://9.9.9.9' \
+    --ech 'crypto.cloudflare.com+https://1.1.1.1/dns-query' \
+    --all --no-prompt
 
-A config that passes JSON parsing or Xray `run -test` has **not necessarily**
-completed TLS negotiation or an HTTPS request. Only actual successful requests
-count in latency/success statistics. All results are network-specific.
+# Supply names and resolvers for combinations based on YOUR network
+./bin/xray-finalmask-scanner --method ech --link-file ~/private-vless.txt \
+    --ech-domain cloudflare-ech.com --ech-domain crypto.cloudflare.com \
+    --ech-resolver udp://9.9.9.9 \
+    --ech-resolver https://1.1.1.1/dns-query --no-prompt
 
-## Output privacy
+# Optional historical 7 × 18 sample: adapts the domain to `ech=` in the link
+./bin/xray-finalmask-scanner --method ech --link-file ~/private-vless.txt \
+    --example-ech --all --no-prompt
 
-The scanner does not run as root, install/update Xray or modify systemd.
-It binds a temporary proxy to 127.0.0.1. Results go to a private folder:
-CSV omits UUIDs, but the 0600 JSON example/best configs contain credentials.
-Never commit config outputs or publish a personal VLESS link. A dry run never
-reports actual connection success. The selection ranks success rate before
-average HTTPS request time; that time is not ICMP ping. The test environment
-could not run live Iranian mobile-network connectivity probes.
+# Test exact PattNG presets, with user-supplied address. No root/systemd changes
+./bin/xray-finalmask-scanner --method irancell --link-file ~/private-vless.txt \
+    --ip 188.114.97.1 --all --no-prompt
+
+# Offline check of inputs and candidate JSON (does not run xray or curl)
+./bin/xray-finalmask-scanner --method ech --link-file ~/private-vless.txt \
+    --ech-file ./ech-list.txt --dry-run --limit 12 --no-prompt
+```
+
+**File example `addresses.txt`**: one address, hostname or CIDR per line.
+**File example `ech-list.txt`**: one *complete* `echConfigList` per line.
+Lines starting with `#` are comments. Do not post your VLESS UUID/publicly.
+
+## Exact PattNG values
+
+The user-supplied PattNG `FieldPresetsTest.kt` and app `strings.xml` agree
+on the following literal values, now stored as project fixtures:
+
+- `profiles/pattng-tlshello-0-len.json`:
+  `tlshello lengths=["0","104","1"] delays=["0"] maxSplit="0"`, followed
+  by `1-1 lengths=["114","1"] delays=["1"] maxSplit="11"`.
+- `profiles/pattng-tlshello.json`: first length sequence `["6","98","1"]`,
+  followed by the same second fragmentation layer.
+- `profiles/pattng-real-firefox-cipherSuites.txt`: exact 12 colon-delimited
+  cipher suites from the app resources, **not an approximation**.
+
+The Irancell experiments include exact `tlshello-0-len`, exact `tlshello`,
+a zero-free variant and no TCP fragment layer. **By default** source TLS,
+ECH, fingerprint and ciphers are preserved. For a deliberate PattNG native
+TLS experiment, select `--tls-profile pattng-unsafe`; this compares the
+native-default cipher set with the literal PattNG Firefox cipher list but
+**never strips ECH**. `fingerprint="unsafe"` is **not** `allowInsecure=true`;
+certificate verification stays as defined by the imported link. Failure of one preset
+is reported as a failure; zero length is supported by the documented FinalMask
+syntax but can have network-specific side effects. FinalMask is applied at
+`outbounds[].streamSettings.finalmask` (not the deprecated Freedom outbound
+fragment syntax).
+
+## Upstream Xray-core checks (reviewed 2026-10-12)
+
+- [Xray FinalMask docs](https://github.com/XTLS/Xray-docs-next/blob/main/docs/en/config/transports/finalmask.md):
+  `tcp` is an ordered list of layers; `fragment` accepts `packets`, `lengths`,
+  `delays`, `maxSplit`; non-final `0` in `lengths` is allowed. `0` in `maxSplit`
+  means unlimited. `delays` are milliseconds. TCP and UDP have different masks.
+- [Xray TLS/ECH docs](https://github.com/XTLS/Xray-docs-next/blob/main/docs/en/config/transports/tls.md):
+  `echConfigList` can be a static ECHConfig blob, a DNS resolver URI or
+  `domain+resolver`. DNS lookup can use UDP, DoH, etc., and respects TTL.
+  `echSockopt` independently adjusts socket options for ECH DNS.
+- With uTLS fingerprints enabled, `cipherSuites` may be overridden. Use
+  `fingerprint="unsafe"` to assess PattNG's cipher list with native TLS.
+  Browser Dialer is a separate option; TLS mimicry is not complete.
+- Modern Xray handles WebSocket/HTTPUpgrade with ECH and special ALPN rules;
+  keep the VLESS-supplied ALPN unchanged rather than automatically modifying it.
+- [Xray core releases](https://github.com/XTLS/Xray-core/releases): latest
+  **non-prerelease** retrieved at the time of review was `v26.3.27`;
+  `v26.10.10` (2026-10-10) is a newer **prerelease**. The Xray 26.3.27 release
+  expanded FinalMask and ECH semantics, including an ECH query policy change.
+
+Runtime support may depend on the Xray binary's version and how the server/CDN
+is configured. A passing JSON parse or Xray `run -test` is *not* proof that a
+particular ECH resolver or FinalMask preset establishes a working TLS session.
+An HTTP 2xx/3xx through the temporary local proxy is counted as success.
+Average end-to-end HTTP request time is **not** an ICMP ping. The experiment
+ranks success rate first, then p95 and mean HTTP latency; it cannot predict other
+clients, paths or future censorship behavior.
+
+## Output and privacy
+
+Temporary Xray binds to localhost only. Per-candidate config has mode 0600;
+results directory mode 0700. `results.csv` now records exact mask JSON,
+fragment arrays, ECH/fingerprint and request statistics but not UUID/full URI.
+`links.csv` and `links.txt` contain complete sensitive URI credentials; use
+`id` to join every row to its exact URI and `manifest.jsonl`. `example-config.json` and
+`best-config.json` (only after actual successful probes) include credentials:
+do **not** commit or share them. Only the run's best *tested* candidate is
+selected; dry runs do not claim success. Cap candidate matrices using
+`--limit`; `--all` is potentially expensive.
+
+## Validation limits
+
+Unit tests check value parsing, URI preservation, exact PattNG fixtures,
+custom and sample matrix generation, privacy of output and dry-run. A live
+Xray-core runtime binary and local Iranian carrier networks were not available
+in the build environment, so no end-to-end connectivity claims are made.
+
+## October 2026 security and round-trip update
+
+Network scanners (`--method irancell` / `--method ech`) now export `results.csv`,
+`ranked.csv`, `links.csv`, `links.txt` and `manifest.jsonl` with stable NET-IDs.
+Each candidate VLESS URI is re-parsed and compared to its exact tested Xray
+JSON before any scan. Default TLS/ECH/fingerprint values are preserved; only
+requested variables differ. `--ech-chrome` and `--tls-profile pattng-unsafe`
+are explicit choices. ECH remains in place even in the opt-in unsafe profile.
+`best-link.txt` requires verified live success. See [LEGACY-ECH.md](LEGACY-ECH.md).

@@ -20,7 +20,7 @@ get_unique_combination_legacy() {
 
         if [[ -z "${USED_COMBINATIONS[$combination]+x}" ]]; then
             USED_COMBINATIONS["$combination"]=1
-            echo "$packets|$length|$interval"
+            SCAN_COMBINATION="$packets|$length|$interval"
             return
         fi
     done
@@ -43,7 +43,7 @@ get_unique_combination_finalmask() {
 
         if [[ -z "${USED_COMBINATIONS[$combination]+x}" ]]; then
             USED_COMBINATIONS["$combination"]=1
-            echo "$packets|$length|$delay|$max_split"
+            SCAN_COMBINATION="$packets|$length|$delay|$max_split"
             return
         fi
     done
@@ -165,7 +165,8 @@ run_scan() {
 
     for ((i = 0; i < Instances; i++)); do
         if is_finalmask_mode; then
-            combination="$(get_unique_combination_finalmask)"
+            get_unique_combination_finalmask
+            combination="$SCAN_COMBINATION"
 
             packets="$(echo "$combination" | cut -d'|' -f1)"
             length="$(echo "$combination" | cut -d'|' -f2)"
@@ -174,7 +175,8 @@ run_scan() {
 
             modify_config_finalmask "$packets" "$length" "$delay" "$max_split"
         else
-            combination="$(get_unique_combination_legacy)"
+            get_unique_combination_legacy
+            combination="$SCAN_COMBINATION"
 
             packets="$(echo "$combination" | cut -d'|' -f1)"
             length="$(echo "$combination" | cut -d'|' -f2)"

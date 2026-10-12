@@ -7,8 +7,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate scanner and Python tests
+      - name: Validate scanner syntax and Python tests
         run: |
-          python3 -m py_compile lib/network_scan.py
+          python3 -m py_compile lib/network_scan.py lib/optimize.py lib/share_codec.py lib/wizard.py
           python3 -m unittest discover -s tests -v
           bash -n bin/xray-finalmask-scanner
+          bash -n lib/config.sh lib/scanner.sh

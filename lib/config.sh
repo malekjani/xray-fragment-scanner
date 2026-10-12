@@ -33,8 +33,9 @@ if parsed.scheme.lower() != "vless":
 query = parse_qs(parsed.query, keep_blank_values=True)
 
 def q(name, default=""):
-    value = query.get(name, [default])[0]
-    return unquote(value) if isinstance(value, str) else value
+    # parse_qs has already percent-decoded once; decoding twice corrupts
+    # literal %XX sequences embedded in encrypted/authenticated parameters.
+    return query.get(name, [default])[0]
 
 def q_bool(*names):
     for name in names:
@@ -98,6 +99,14 @@ if security == "tls":
 
     if alpn:
         tls_settings["alpn"] = alpn
+    if q("ech"):
+        tls_settings["echConfigList"] = q("ech")
+    if q("cs") or q("cipherSuites"):
+        tls_settings["cipherSuites"] = q("cs") or q("cipherSuites")
+    if q("pcs"):
+        tls_settings["pinnedPeerCertSha256"] = q("pcs")
+    if q("vcn"):
+        tls_settings["verifyPeerCertByName"] = q("vcn")
 
     stream_settings["tlsSettings"] = tls_settings
 
@@ -169,6 +178,20 @@ elif network == "httpupgrade":
 
     stream_settings["httpupgradeSettings"] = httpupgrade_settings
 
+# An existing FinalMask must remain in place in legacy freedom.fragment
+# mode; fragmentation via dialerProxy must not silently remove it.
+if q("fm"):
+    raw_mask = q("fm").strip().rstrip(",").strip()
+    if raw_mask.startswith('"finalmask"'):
+        raw_mask = "{" + raw_mask + "}"
+    parsed_mask = json.loads(raw_mask)
+    if not isinstance(parsed_mask, dict):
+        raise SystemExit("Error: Invalid fm query value")
+    value = parsed_mask.get("finalmask", parsed_mask)
+    if not isinstance(value, dict):
+        raise SystemExit("Error: Invalid FinalMask JSON")
+    stream_settings["finalmask"] = value
+
 outbounds = [
     {
         "tag": "proxy",
@@ -217,7 +240,20 @@ if scan_mode in ("finalmask", "finalmask_fragment", "finalmask_header_fragment")
         },
     })
 
-    stream_settings["finalmask"] = {"tcp": finalmask_tcp}
+    # Replace only TCP fragments; retain pre-existing header/sudoku, UDP
+    # masks and QUIC parameters from the link. Header mode adds one extra
+    # header-custom layer only when the link does not already have one.
+    original_mask = stream_settings.get("finalmask", {})
+    original_tcp = original_mask.get("tcp", [])
+    preserved_tcp = [layer for layer in original_tcp if layer.get("type") != "fragment"]
+    if scan_mode == "finalmask_header_fragment" and any(
+            layer.get("type") == "header-custom" for layer in preserved_tcp):
+        finalmask_tcp = [layer for layer in finalmask_tcp if layer.get("type") != "header-custom"]
+    original_index = next((i for i, layer in enumerate(original_tcp)
+                           if layer.get("type") == "fragment"), len(preserved_tcp))
+    insertion = min(original_index, len(preserved_tcp))
+    preserved_tcp[insertion:insertion] = finalmask_tcp
+    stream_settings["finalmask"] = {**original_mask, "tcp": preserved_tcp}
 else:
     stream_settings["sockopt"]["dialerProxy"] = "fragment"
 
