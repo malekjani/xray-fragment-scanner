@@ -8,7 +8,7 @@
 - `--tls-profile pattng-unsafe` حالت آزمایشی **اختیاری** است؛ Fingerprint را به `unsafe` تبدیل کرده و مجموعه رمزهای `native-default` / `pattng-real-firefox` را تست می‌کند، اما ECH را پاک نمی‌کند. افزودن `--cipher-file` مستلزم همین انتخاب صریح است.
 - در اسکن ECH نیز Fingerprint اصلی به‌صورت پیش‌فرض حفظ می‌شود؛ `--ech-chrome` آن را به Chrome تغییر می‌دهد. FinalMask دیگر به‌صورت مخفی حذف نمی‌شود.
 - در حالت اسکن شبکه، فایل‌های `results.csv`, `ranked.csv`, `links.csv`, `links.txt`, `manifest.jsonl` ذخیره می‌شوند. هر کانفیگ قبل از اجرا به لینک تبدیل و دوباره Parse می‌شود. `best-link.txt` فقط با موفقیت واقعی همهٔ درخواست‌های تست ایجاد می‌شود.
-- روش Bash تاریخی همچنان نیازمند `sudo` و ممکن است سرویس Xray سیستم را متوقف و نسخهٔ Xray را نصب/به‌روزرسانی کند. برای تست امن‌تر و لینک خروجی کامل، `optimize` یا `--method irancell` توصیه می‌شود.
+- روش Bash تاریخی همچنان نیازمند `sudo` و ممکن است سرویس Xray سیستم را موقتاً متوقف کند؛ دیگر نسخهٔ Stable را سراسری نصب نمی‌کند و نیازمند انتخاب صریح `--legacy-system-mode` است. برای تست امن‌تر و لینک خروجی کامل، `optimize` یا `--method irancell` توصیه می‌شود.
 
 ```bash
 # بررسی سریع و آفلاین — بدون Xray یا دسترسی root
@@ -26,7 +26,7 @@
 
 ## English
 
-The legacy Bash VLESS decoder now retains `ech`, `fp`, `alpn`, `cs`, `pcs`, `vcn` and an existing `fm`. The `freedom.fragment` dialer is added without silently dropping the input ECH or TLS settings. This historical path still requires root and can affect the system-wide Xray service; use the non-root Python modes for safe comparative testing and share-link export.
+The legacy Bash VLESS decoder now retains `ech`, `fp`, `alpn`, `cs`, `pcs`, `vcn` and an existing `fm`. The `freedom.fragment` dialer is added without silently dropping the input ECH or TLS settings. This historical path still requires root and can temporarily affect the system-wide Xray service and requires explicit `--legacy-system-mode`; it now resolves a prerelease per-user and no longer installs a stable Xray globally; use the non-root Python modes for safe comparative testing and share-link export.
 
 By default, the historical `--method irancell` scan **preserves the input ECH, fingerprint, TLS settings, WebSocket settings, non-Fragment TCP layers, UDP layers and QUIC parameters**. It varies the tested address and TCP fragment mask only. The native TLS/cipher experiment is explicitly enabled with `--tls-profile pattng-unsafe`; this **does not remove ECH**. A custom `--cipher-file` requires that explicit profile selection. The IP/ECH mode similarly preserves the source fingerprint and FinalMask unless `--ech-chrome` is requested.
 

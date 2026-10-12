@@ -4,6 +4,14 @@ set -uo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+# All modern/live scans select the latest official prerelease via core_manager.py.
+if [[ "${1:-}" == "--core" || "${1:-}" == "--update-core" ]]; then
+    exec python3 "$PROJECT_ROOT/lib/core_manager.py" --ensure
+fi
+if [[ "${1:-}" == "--latest-core" ]]; then
+    exec python3 "$PROJECT_ROOT/lib/core_manager.py" --latest
+fi
+
 # Validate an existing scan without re-entering a private URL or running a network scan.
 if [[ "${1:-}" == "--diagnose" ]]; then
     shift
@@ -25,7 +33,7 @@ fi
 
 if [[ "${1:-}" == "--legacy-menu" ]]; then
     echo "Xray Finalmask Scanner"
-    echo "1) Existing fragment modes (legacy, finalmask, header-custom)"
+    echo "1) Historical Bash mode (explicit opt-in; see --legacy-system-mode)"
     echo "2) IP + ECH matrix (Rightel / MCI experiment)"
     echo "3) IP + FinalMask / unsafe / cipher matrix (Irancell experiment)"
     echo "4) Optimize fragments/finalmask + export VLESS links and analytics"
@@ -34,10 +42,17 @@ if [[ "${1:-}" == "--legacy-menu" ]]; then
         2) exec python3 "$PROJECT_ROOT/lib/network_scan.py" --method ech ;;
         3) exec python3 "$PROJECT_ROOT/lib/network_scan.py" --method irancell ;;
         4) exec python3 "$PROJECT_ROOT/lib/optimize.py" ;;
-        1) ;;
+        1) echo "Historical mode requires --legacy-system-mode; opening the safe modern wizard." >&2
+           exec python3 "$PROJECT_ROOT/lib/wizard.py" ;;
         *) echo "Unknown mode" >&2; exit 2 ;;
     esac
 fi
+
+if [[ "${1:-}" != "--legacy-system-mode" ]]; then
+    echo "Use the interactive wizard or --method optimize|ech|irancell. Historical service-changing mode needs --legacy-system-mode." >&2
+    exit 2
+fi
+shift
 
 source "$PROJECT_ROOT/lib/env.sh"
 source "$PROJECT_ROOT/lib/ui.sh"

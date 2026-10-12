@@ -590,7 +590,7 @@ def parse_args(argv=None):
     p.add_argument("--timeout", type=float, default=8)
     p.add_argument("--seed", type=int, default=2026)
     p.add_argument("--url", default="https://www.gstatic.com/generate_204")
-    p.add_argument("--xray", help="Xray executable path (default: PATH or /usr/local/bin/xray)")
+    p.add_argument("--xray", help="Optional override; default is auto-verified latest official Xray pre-release")
     p.add_argument("--output", type=Path, help="Output folder (default ~/.local/share/...)")
     p.add_argument("--dry-run", action="store_true", help="Generate candidates, do not run Xray")
     p.add_argument("--experimental-zero", action="store_true", help="Deprecated: exact PattNG zero preset is now included by default")
@@ -672,12 +672,10 @@ def resolve_candidate_inputs(args, cfg):
 
 def main(argv=None):
     args = parse_args(argv)
-    if not args.dry_run:
-        xray = args.xray or shutil.which("xray") or "/usr/local/bin/xray"
-        if not (shutil.which("curl") and (shutil.which(xray) or os.path.isfile(xray))):
-            raise SystemExit("Error: Install Xray-core and curl; this mode never installs software")
-    else:
-        xray = ""
+    from core_manager import resolve_core, core_identity
+    xray = resolve_core(args.xray, dry_run=args.dry_run)
+    if not args.dry_run and not shutil.which("curl"):
+        raise SystemExit("Error: curl is required for live HTTPS probes")
     custom_mask = None
     if args.finalmask_json:
         custom_mask = extract_finalmask(args.finalmask_json.read_text(encoding="utf-8"))
@@ -782,6 +780,7 @@ def main(argv=None):
         write_private_json(output / "best-config.json", best_cfg)
         safe_text_file(output / "best-link.txt", [next(v["link"] for v in links if v["id"] == best["id"])])
         summary = {"winner": {k: v for k, v in best.items() if k != "reason"},
+                   "xray_core": core_identity(xray),
                    "note": "Full success required. Validate stability at another time."}
         write_private_json(output / "summary.json", summary)
         print(f"\nBest full-success result: {best['id']} / {best['address']} / {best['variant']}")
@@ -794,7 +793,7 @@ def main(argv=None):
 if __name__ == "__main__":
     try:
         sys.exit(main())
-    except (ValueError, OSError, json.JSONDecodeError) as exc:
+    except (ValueError, OSError, json.JSONDecodeError, __import__("core_manager").CoreError) as exc:
         # Never print a credential-containing URL in errors.
         print(f"Error: {type(exc).__name__}: {str(exc)[:200]}", file=sys.stderr)
         sys.exit(2)

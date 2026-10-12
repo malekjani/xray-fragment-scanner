@@ -19,6 +19,7 @@ import tempfile
 from network_scan import free_port, write_private_json
 from share_codec import link_to_config
 from xray_errors import classify
+from core_manager import resolve_core, CoreError
 
 
 def choose_rows(rows):
@@ -49,11 +50,9 @@ def run_validation(xray: str, link: str):
 def main(argv=None):
     p = argparse.ArgumentParser(description="Validate saved candidate links locally without network probes")
     p.add_argument("results", type=Path, help="Previous optimize-* folder with links.csv")
-    p.add_argument("--xray", help="Path to an Xray binary (default: search PATH)")
+    p.add_argument("--xray", help="Optional reproducibility override; default: newest official pre-release")
     args = p.parse_args(argv)
-    xray = args.xray or shutil.which("xray") or "/usr/local/bin/xray"
-    if not (shutil.which(xray) or os.path.isfile(xray)):
-        p.error("Xray binary was not found; pass --xray /path/to/xray")
+    xray = resolve_core(args.xray)
     folder = args.results.expanduser().resolve()
     path = folder / "links.csv"
     if not path.is_file():
@@ -84,7 +83,7 @@ def main(argv=None):
 if __name__ == "__main__":
     try:
         sys.exit(main())
-    except (ValueError, OSError) as e:
+    except (ValueError, OSError, CoreError) as e:
         # Don't echo link parse errors that might contain credentials.
         print("Diagnosis could not finish:", type(e).__name__, file=sys.stderr)
         sys.exit(2)
