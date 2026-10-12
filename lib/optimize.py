@@ -306,6 +306,7 @@ def main(argv=None, *, link_override=None):
     output.mkdir(parents=True, exist_ok=True, mode=0o700)
     os.chmod(output, 0o700)
     results, links_rows, manifest, actual_links = [], [], [], []
+    invalid_reported = False
     for i, (mode, profile, candidate) in enumerate(configs, 1):
         id_ = f"OPT-{i:04d}"
         candidate["inbounds"][0]["port"] = free_port()
@@ -328,6 +329,11 @@ def main(argv=None, *, link_override=None):
                     status, reason = "PARTIAL", "partial-success"
         finally:
             tmp.unlink(missing_ok=True)
+        if status == "INVALID_CONFIG" and not invalid_reported:
+            invalid_reported = True
+            print(f"Warning: Xray rejected a candidate ({reason}). Core diagnostics saved "
+                  f"privately to {output / 'xray-validation-error.log'}")
+            print("Inspect installed Xray version and use --diagnose on this results folder.")
         info = summarize_parameters(candidate)
         row = {"id": id_, "rank": "", "protocol": scheme, "source_encoding": source_encoding,
                "mode": mode, "profile": profile,
