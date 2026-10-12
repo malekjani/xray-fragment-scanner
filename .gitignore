@@ -1,0 +1,18 @@
+# Runtime-generated config and logs
+config.json
+config.json.backup-before-fragment-scanner
+logs/*.txt
+
+# Local/editor files
+.env
+*.swp
+.DS_Store
+.idea/
+.vscode/
+# Private scanner inputs / results
+*vless*.txt
+best-config.json
+example-config.json
+results.csv
+summary.json
+__pycache__/
