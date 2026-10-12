@@ -4,6 +4,12 @@ set -uo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+# Validate an existing scan without re-entering a private URL or running a network scan.
+if [[ "${1:-}" == "--diagnose" ]]; then
+    shift
+    exec python3 "$PROJECT_ROOT/lib/diagnose.py" "$@"
+fi
+
 # New modes operate as an unprivileged process and never touch systemd/Xray installs.
 if [[ "${1:-}" == "--method" && "${2:-}" == "optimize" ]]; then
     shift 2

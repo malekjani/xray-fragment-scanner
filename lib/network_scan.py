@@ -27,6 +27,7 @@ import tempfile
 import time
 from datetime import datetime, timezone
 from urllib.parse import parse_qs, parse_qsl, quote, urlsplit, urlunsplit, unquote
+from xray_errors import classify as classify_xray_error, write_first_error
 
 CF_IPS = [f"188.114.97.{n}" for n in (1, 2, 3, 4, 5, 7, 8)]
 ECH_DNS = [
@@ -505,8 +506,10 @@ def run_candidate(xray, cfg, cfg_file, url, count, timeout, times_out=None):
     except subprocess.TimeoutExpired:
         return "INVALID_CONFIG", 0, None, "config-test-timeout"
     if valid.returncode:
-        # Truncate messages to avoid inadvertent credential disclosure in logs.
-        return "INVALID_CONFIG", 0, None, "xray-config-rejected"
+        error = (valid.stderr or "") + "\n" + (valid.stdout or "")
+        # Keep the original diagnostic PRIVATE; only expose a safe category.
+        write_first_error(Path(cfg_file).parent, error)
+        return "INVALID_CONFIG", 0, None, classify_xray_error(error)
     port = cfg["inbounds"][0]["port"]
     with open(os.devnull, "wb") as devnull:
         process = subprocess.Popen([xray, "run", "-c", str(cfg_file)],
