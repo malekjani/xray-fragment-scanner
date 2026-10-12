@@ -1,0 +1,14 @@
+name: Scanner unit tests
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate scanner and Python tests
+        run: |
+          python3 -m py_compile lib/network_scan.py
+          python3 -m unittest discover -s tests -v
+          bash -n bin/xray-finalmask-scanner

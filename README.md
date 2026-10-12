@@ -137,3 +137,16 @@ varying the actual address.
 Both modes record actual proxied HTTPS success rates, require 100% success
 before naming a best candidate, and write private `results.csv` and
 `best-config.json`. See [docs/NETWORK_SCAN.md](docs/NETWORK_SCAN.md).
+
+
+## October 2026: flexible ECH/IP scanning and exact PattNG presets
+
+Network scanner modes 2 (ECH) and 3 (FinalMask/unsafe/Firefox ciphers) now
+accept arbitrary IPs, hostnames, CIDR files, full ECH values or combinations
+of ECH domains and resolvers. The old 7 IPs and 18 DNS addresses are optional
+examples, not hardcoded limits. Exact PattNG `tlshello-0-len`, `tlshello`,
+and `real-firefox-cipherSuites` presets are included.
+Use `--no-prompt` for automation and see
+[docs/NETWORK_SCAN.md](docs/NETWORK_SCAN.md) for examples, privacy and
+upstream compatibility. Mode 1 is still the legacy root-required workflow;
+modes 2 and 3 do not touch system services.
