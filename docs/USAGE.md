@@ -1,51 +1,28 @@
-# Usage
+# Usage / راهنمای اجرا
 
-## Start the scanner
+**Recommended / پیشنهاد اصلی:** use `./bin/xray-finalmask-scanner` without arguments.
+It prompts for a VLESS / VMess / Trojan share link, asks for Fragment/FinalMask
+parameters and writes verified per-candidate links plus CSV/JSONL analytics.
+اجرای بدون پارامتر، راهنمای مرحله‌ای را باز می‌کند و برای هر آزمون لینک و جدول
+جداگانه می‌سازد. برای آزمایش واقعی، `xray` و `curl` باید نصب باشند.
 
 ```bash
-sudo ./bin/xray-finalmask-scanner
+./bin/xray-finalmask-scanner
+
+# Safe CLI default: preserve ECH / Fingerprint / TLS / WS
+./bin/xray-finalmask-scanner --method irancell --link-file ~/private-link.txt \
+  --ip example.net --requests 5 --timeout 10 --no-prompt
+
+# Deliberately change to PattNG-like native TLS (ECH remains intact)
+./bin/xray-finalmask-scanner --method irancell --link-file ~/private-link.txt \
+  --ip example.net --tls-profile pattng-unsafe --no-prompt
+
+# Legacy administrative workflow (root; may affect system Xray)
+sudo ./bin/xray-finalmask-scanner --legacy-menu
 ```
 
-The scanner performs these steps:
-
-1. Checks dependencies.
-2. Checks the installed Xray version.
-3. Temporarily stops the active `xray` systemd service, if it is running.
-4. Reads or generates `config.json`.
-5. Lets you choose the scan mode.
-6. Runs Xray with different fragment combinations.
-7. Tests the local HTTP proxy using `curl`.
-8. Prints the top three lowest average response times.
-9. Restores the original Xray service state.
-
-## Recommended inputs
-
-For quick tests:
-
-```text
-Instances: 10
-Timeout: 10
-HTTP port: 10809
-Requests per instance: 3
-```
-
-For more reliable results:
-
-```text
-Instances: 30
-Timeout: 10
-HTTP port: 10809
-Requests per instance: 5
-```
-
-## Output files
-
-```text
-logs/pings.txt
-logs/xraylogs.txt
-logs/xraylogs.error.txt
-```
-
-## Important note about header-custom
-
-In this version, `finalmask-header-custom + fragment` uses a fixed `header-custom` packet. The scanner still changes only fragment parameters. Header profile scanning is planned for a later version.
+The historical Legacy mode retains `ech`, `fp`, `alpn`, `cs`, `pcs`, `vcn`
+and `fm` while scanning `freedom.fragment` values. It does not generate
+per-candidate share links; use `optimize` to obtain them. More details:
+[README](../README.md), [Wizard](WIZARD.md), [Optimizer](OPTIMIZE.md),
+[Network scanner](NETWORK_SCAN.md), [Legacy/ECH fixes](LEGACY-ECH.md).

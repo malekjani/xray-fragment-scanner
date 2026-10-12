@@ -1,6 +1,12 @@
 # Architecture
 
-The project is split into small Bash modules.
+The project has modern non-root Python scanners plus historical Bash modules.
+
+- `lib/wizard.py`: accepts VLESS / VMess / Trojan and guides parameter selection.
+- `lib/optimize.py`: creates FinalMask fragment grids, validates a round-trip between share links and Xray JSON, exports CSV and JSONL with stable OPT identifiers.
+- `lib/network_scan.py`: IP/ECH or IP/FinalMask scans, preserving original TLS/ECH by default; produces NET-IDs, verified links and manifest exports.
+- `lib/share_codec.py`: loss-averse protocol-specific URI conversions.
+- Legacy Bash modules below remain available by selecting `--legacy-menu` and may affect the system Xray service.
 
 ## Entry point
 

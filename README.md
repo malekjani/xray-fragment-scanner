@@ -1,6 +1,44 @@
 # Xray Finalmask Scanner
 
-A Bash-based scanner for testing Xray fragment combinations. It supports three modes:
+## Quick start — guided wizard (VLESS, VMess, Trojan)
+
+Run without arguments (no root needed):
+
+```bash
+chmod +x bin/xray-finalmask-scanner
+./bin/xray-finalmask-scanner
+```
+
+The interactive assistant immediately asks you to paste a **VLESS**,
+**VMess AEAD**, **legacy VMess Base64 JSON**, or **Trojan** link, then:
+
+1. Detects protocol, address, transport, TLS, ECH and existing FinalMask.
+2. Asks whether to scan Fragment, FinalMask or both.
+3. Optionally accepts extra server IPs/hostnames (the original SNI and Host stay unchanged).
+4. Offers default PattNG presets or custom packets/lengths/delays/maxSplit, including a second layer.
+5. Asks for test counts, timeout, candidate limit and offline (`dry-run`) mode.
+6. Confirms the scan and exports **results.csv, ranked.csv, links.csv, links.txt, manifest.jsonl**.
+
+When a live candidate succeeds on every request, a matching `best-link.txt`
+(and for VLESS also `best-vless.txt`) and `best-config.json` are generated.
+All candidate links include their exact `fm` settings and are checked by
+round-tripping through the supported share parser before testing.
+
+**VMess legacy caveat:** modified Base64 QR input is exported as an
+**AEAD-style VMess URI**, since the legacy QR format does not have an
+interoperable FinalMask field. Test client compatibility before importing.
+Unsupported VMess `alterId`, unsupported transport headers and unknown share
+parameters fail closed; no silent dropping of connection settings.
+
+The wizard keeps credentials out of shell arguments, but export files contain
+passwords/UUIDs: their permissions are restricted and they must not be
+committed to GitHub or shared publicly. Test results are network-dependent.
+
+See [docs/WIZARD.md](docs/WIZARD.md) and [docs/OPTIMIZE.md](docs/OPTIMIZE.md).
+
+---
+
+The original Bash scanner is still available with `--legacy-menu`. Its three historical modes are:
 
 1. `finalmask-fragment`
 2. `finalmask-header-custom + fragment`
@@ -65,10 +103,10 @@ sudo apt install -y curl jq python3
 
 ```bash
 chmod +x bin/xray-finalmask-scanner
-sudo ./bin/xray-finalmask-scanner
+sudo ./bin/xray-finalmask-scanner --legacy-menu
 ```
 
-If `config.json` does not exist in the project root, the scanner asks for a VLESS link and generates it.
+In the legacy mode, if `config.json` is missing, the scanner asks for a VLESS link and generates it.
 
 ## Modes
 

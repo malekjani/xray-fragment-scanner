@@ -10,6 +10,7 @@ import argparse
 import copy
 import csv
 import getpass
+import hashlib
 import re
 import ipaddress
 import itertools
@@ -25,7 +26,7 @@ import sys
 import tempfile
 import time
 from datetime import datetime, timezone
-from urllib.parse import parse_qs, urlsplit, unquote
+from urllib.parse import parse_qs, parse_qsl, quote, urlsplit, urlunsplit, unquote
 
 CF_IPS = [f"188.114.97.{n}" for n in (1, 2, 3, 4, 5, 7, 8)]
 ECH_DNS = [
@@ -302,16 +303,42 @@ def proxy(cfg):
     return cfg["outbounds"][0]
 
 
+def preserve_mask_layers(original_mask, replacement_mask):
+    """Replace only TCP fragment layers; preserve other TCP layers and UDP/QUIC.
+
+    `replacement_mask=None` removes TCP fragments, without stripping unrelated
+    masks from the original link. A custom mask supplies its TCP fragment stack.
+    """
+    mask = copy.deepcopy(original_mask) if original_mask else {}
+    tcp = mask.get("tcp", [])
+    if not isinstance(tcp, list):
+        raise ValueError("finalmask.tcp must be an array")
+    fragments = [] if replacement_mask is None else [
+        copy.deepcopy(layer) for layer in replacement_mask.get("tcp", [])
+        if layer.get("type") == "fragment"
+    ]
+    before = next((i for i, layer in enumerate(tcp)
+                   if layer.get("type") == "fragment"), len(tcp))
+    retained = [copy.deepcopy(layer) for layer in tcp if layer.get("type") != "fragment"]
+    retained[min(before, len(retained)):min(before, len(retained))] = fragments
+    if retained:
+        mask["tcp"] = retained
+    else:
+        mask.pop("tcp", None)
+    return mask
+
+
 def build_candidates(cfg: dict, method: str, ips=None, dns=None,
                      custom_mask=None, experimental_zero=False,
-                     custom_ciphers=None, ech_values=None):
+                     custom_ciphers=None, ech_values=None, *,
+                     tls_profile="preserve", ech_chrome=False):
     """Build address × ECH or address × FinalMask candidates, plus baseline.
 
     dns= is an older API accepting bare DNS IPs; full ech_values= is preferred.
     """
     original = copy.deepcopy(cfg)
     yield ("original", "original", "original", original)
-    ips = ips if ips is not None else CF_IPS
+    ips = ips if ips is not None else CF_IPS  # Direct Python API compatibility; CLI passes resolved addresses.
     if not ips:
         raise ValueError("At least one address is required")
     ips = unique(validate_address(ip) for ip in ips)
@@ -337,10 +364,10 @@ def build_candidates(cfg: dict, method: str, ips=None, dns=None,
             x = copy.deepcopy(cfg)
             proxy(x)["settings"]["address"] = ip
             st = proxy(x)["streamSettings"]
-            st["tlsSettings"]["fingerprint"] = "chrome"
+            if ech_chrome:  # Explicit opt-in, never silently change fp.
+                st["tlsSettings"]["fingerprint"] = "chrome"
             st["tlsSettings"]["echConfigList"] = ech
-            st.pop("finalmask", None)  # isolate ECH effects
-            yield (ip, ech, "ECH+chrome", x)
+            yield (ip, ech, "ECH+chrome" if ech_chrome else "original-TLS", x)
     elif method == "irancell":
         if proxy(cfg)["streamSettings"]["security"] != "tls":
             raise ValueError("FinalMask+TLS mode requires security=tls")
@@ -349,8 +376,15 @@ def build_candidates(cfg: dict, method: str, ips=None, dns=None,
                  ("zero-free", ZERO_FREE_MASK), ("none", None)]
         if custom_mask is not None:
             masks.insert(0, ("custom", custom_mask))
-        ciphers = [("native-default", None),
-                   ("pattng-real-firefox", PATTNG_REAL_FIREFOX_CIPHERS)]
+        if tls_profile not in ("preserve", "pattng-unsafe"):
+            raise ValueError("Unsupported TLS profile: " + tls_profile)
+        if custom_ciphers is not None and tls_profile != "pattng-unsafe":
+            raise ValueError("Custom cipher tests require explicit tls_profile=pattng-unsafe; "
+                             "the link's uTLS fingerprint may ignore cipherSuites")
+        ciphers = ([("original-TLS", None)] if tls_profile == "preserve" else [
+            ("native-default", None),
+            ("pattng-real-firefox", PATTNG_REAL_FIREFOX_CIPHERS),
+        ])
         if custom_ciphers is not None:
             ciphers.insert(0, ("custom", custom_ciphers))
         if len(ips) * len(masks) * len(ciphers) + 1 > MAX_CANDIDATES:
@@ -361,17 +395,52 @@ def build_candidates(cfg: dict, method: str, ips=None, dns=None,
             proxy(x)["settings"]["address"] = ip
             st = proxy(x)["streamSettings"]
             tls = st["tlsSettings"]
-            tls.pop("echConfigList", None)
-            tls["fingerprint"] = "unsafe"  # native TLS, NOT insecure verification
-            tls.pop("cipherSuites", None)
-            if cipher is not None:
-                tls["cipherSuites"] = cipher
-            st.pop("finalmask", None)
-            if mask is not None:
-                st["finalmask"] = copy.deepcopy(mask)
+            # ECH, SNI, ALPN, certificate verification, WS Host and path are
+            # preserved for ALL candidates, including opt-in native TLS tests.
+            if tls_profile == "pattng-unsafe":
+                tls["fingerprint"] = "unsafe"
+                tls.pop("cipherSuites", None)
+                if cipher is not None:
+                    tls["cipherSuites"] = cipher
+            new_mask = preserve_mask_layers(st.get("finalmask"), mask)
+            if new_mask:
+                st["finalmask"] = new_mask
+            else:
+                st.pop("finalmask", None)
             yield (ip, mask_name, cipher_name, x)
     else:
         raise ValueError(f"Unknown method: {method}")
+
+
+def export_candidate_link(original_link, candidate, label, *, baseline=False):
+    """Export a VLESS URI matching the candidate's exact tested connection.
+
+    Only deliberate network scanner changes (IP, fm, ech, fp, ciphers)
+    are serialized. Always compare the decoded URI to the Xray configuration.
+    """
+    from optimize import share_link
+    from share_codec import link_to_config
+    link = share_link(original_link, candidate, label, baseline=baseline)
+    if not baseline:
+        parsed = urlsplit(link)
+        source_tls = proxy(link_to_config(original_link))["streamSettings"].get("tlsSettings", {})
+        target_tls = proxy(candidate)["streamSettings"].get("tlsSettings", {})
+        changes = {key: target_tls.get(field) for key, field in (
+            ("fp", "fingerprint"), ("ech", "echConfigList"),
+            ("cs", "cipherSuites")) if source_tls.get(field) != target_tls.get(field)}
+        if changes:
+            pairs = [(key, value) for key, value in parse_qsl(parsed.query, keep_blank_values=True)
+                     if key not in changes and not (key == "cipherSuites" and "cs" in changes)]
+            pairs.extend((key, value) for key, value in changes.items() if value is not None)
+            query = "&".join(quote(k, safe="-_.~") + "=" + quote(v, safe="-_.~")
+                             for k, v in pairs)
+            link = urlunsplit((parsed.scheme, parsed.netloc, parsed.path, query, parsed.fragment))
+    parsed_back = link_to_config(link)
+    source = proxy(candidate)
+    target = proxy(parsed_back)
+    if source["settings"] != target["settings"] or source["streamSettings"] != target["streamSettings"]:
+        raise ValueError("Link/JSON roundtrip mismatch for " + label)
+    return link
 
 
 def balanced_sample(candidates, limit, seed):
@@ -503,6 +572,11 @@ def parse_args(argv=None):
                    help="Resolver URI (udp://, https:// etc.) or bare IP, repeatable")
     p.add_argument("--example-ech", action="store_true",
                    help="Also test the 18 example resolvers using the LINK's ECH domain")
+    p.add_argument("--ech-chrome", action="store_true",
+                   help="ECH mode only: explicitly force Chrome fingerprint instead of original")
+    p.add_argument("--tls-profile", choices=["preserve", "pattng-unsafe"],
+                   default="preserve",
+                   help="Irancell mode: preserve source TLS/ECH/fp (default) or opt into PattNG unsafe/native TLS cipher tests")
     p.add_argument("--no-link-ech", action="store_true",
                    help="Omit the link ECH as a scan candidate (baseline unchanged)")
     p.add_argument("--no-prompt", action="store_true",
@@ -565,8 +639,10 @@ def resolve_candidate_inputs(args, cfg):
     ip_inputs = list(args.ip)
     if args.ip_file:
         ip_inputs.append(args.ip_file.read_text(encoding="utf-8"))
-    if args.example_ips or not ip_inputs:
+    if args.example_ips:
         ip_inputs.extend(CF_IPS)
+    if not ip_inputs:
+        ip_inputs.append(proxy(cfg)["settings"]["address"])
     ips = expand_addresses(ip_inputs)
     if args.method != "ech":
         return ips, None
@@ -607,12 +683,19 @@ def main(argv=None):
         custom_ciphers = args.cipher_file.read_text(encoding="utf-8").strip()
         if not custom_ciphers:
             raise SystemExit("Error: --cipher-file is empty")
-    cfg = vless_to_config(get_link(args))
+    if args.cipher_file and args.tls_profile != "pattng-unsafe":
+        raise SystemExit("Error: --cipher-file requires --tls-profile pattng-unsafe")
+    original_link = get_link(args)
+    # Fail closed on share fields that cannot be round-tripped by the exporter.
+    from share_codec import link_to_config
+    cfg = link_to_config(original_link)
     prompt_candidates(args, cfg)
     ips, ech_values = resolve_candidate_inputs(args, cfg)
     candidates = list(build_candidates(cfg, args.method, ips=ips,
                       ech_values=ech_values, custom_mask=custom_mask,
-                      custom_ciphers=custom_ciphers))
+                      custom_ciphers=custom_ciphers, tls_profile=args.tls_profile,
+                      ech_chrome=args.ech_chrome))
+    print(f"TLS profile: {args.tls_profile}; ECH retained (except ECH expressions intentionally varied).")
     print(f"Scan plan: {len(ips)} addresses; " +
           (f"{len(ech_values)} ECH expressions" if ech_values is not None else "PattNG FinalMask presets") +
           f"; total {len(candidates)} candidates (including original).")
@@ -624,52 +707,83 @@ def main(argv=None):
               f"{args.method}-{stamp}")).expanduser()
     output.mkdir(parents=True, exist_ok=True, mode=0o700)
     os.chmod(output, 0o700)
-    results = []
-    csv_path = output / "results.csv"
-    fields = ["index", "address", "variant", "tls", "status", "successes", "requests", "success_rate", "avg_ms", "reason"]
+    from optimize import safe_csv, safe_text_file, percentile95
+    results, links, manifest = [], [], []
+    fields = ["id", "address", "variant", "tls", "fingerprint", "ech",
+              "finalmask_json", "fragment_layers", "status", "successes", "requests",
+              "success_rate", "avg_ms", "p95_ms", "reason", "link_sha256"]
     try:
-        with csv_path.open("w", encoding="utf-8", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=fields)
-            writer.writeheader()
-            for i, (ip, variant, tls_variant, candidate) in enumerate(candidates, 1):
-                candidate["inbounds"][0]["port"] = free_port()
-                tmp = output / ".candidate.json"
-                write_private_json(tmp, candidate)
+        for i, (ip, variant, tls_variant, candidate) in enumerate(candidates, 1):
+            id_ = f"NET-{i:04d}"
+            candidate["inbounds"][0]["port"] = free_port()
+            # Do not launch anything until exported URI is verified.
+            link = export_candidate_link(original_link, candidate, id_, baseline=(i == 1))
+            tmp = output / ".candidate.json"
+            write_private_json(tmp, candidate)
+            timings = []
+            try:
                 if args.dry_run:
                     status, count_ok, mean, reason = "DRY_RUN", 0, None, "not-executed"
                 else:
                     status, count_ok, mean, reason = run_candidate(
-                        xray, candidate, tmp, args.url, args.requests, args.timeout)
-                row = {"index": i, "address": ip, "variant": variant,
-                       "tls": tls_variant, "status": status,
-                       "successes": count_ok, "requests": args.requests,
-                       "success_rate": round(count_ok / args.requests, 4),
-                       "avg_ms": mean if mean is not None else "", "reason": reason}
-                writer.writerow(row)
-                f.flush()
-                results.append((row, copy.deepcopy(candidate)))
-                latency = f"{mean}ms" if mean is not None else "-"
-                print(f"[{i:>3}/{len(candidates)}] {ip:16} {variant:23} {tls_variant:22} "
-                      f"{status:14} {count_ok}/{args.requests} {latency}", flush=True)
-                if args.dry_run and i == 1:
-                    # Only first config is saved as an example, with private permissions.
-                    write_private_json(output / "example-config.json", candidate)
+                        xray, candidate, tmp, args.url, args.requests, args.timeout,
+                        times_out=timings)
+                    if 0 < count_ok < args.requests:
+                        status, reason = "PARTIAL", "partial-success"
+            finally:
                 tmp.unlink(missing_ok=True)
+            st = proxy(candidate)["streamSettings"]
+            tls = st.get("tlsSettings", {})
+            fm = st.get("finalmask", {})
+            layers = [layer.get("settings", {}) for layer in fm.get("tcp", [])
+                      if layer.get("type") == "fragment"]
+            digest = hashlib.sha256(link.encode()).hexdigest()
+            row = {"id": id_, "address": ip, "variant": variant,
+                   "tls": tls_variant, "fingerprint": tls.get("fingerprint", ""),
+                   "ech": tls.get("echConfigList", ""),
+                   "finalmask_json": json.dumps(fm, ensure_ascii=False, separators=(",", ":")) if fm else "",
+                   "fragment_layers": json.dumps(layers, ensure_ascii=False, separators=(",", ":")),
+                   "status": status, "successes": count_ok, "requests": args.requests,
+                   "success_rate": round(count_ok / args.requests, 4),
+                   "avg_ms": mean if mean is not None else "",
+                   "p95_ms": percentile95(timings) if timings else "",
+                   "reason": reason, "link_sha256": digest}
+            results.append((row, copy.deepcopy(candidate)))
+            links.append({"id": id_, "link": link})
+            manifest.append({"id": id_, "address": ip, "variant": variant,
+                             "tls": tls_variant, "finalmask": fm or None,
+                             "fragment_layers": layers, "timings_ms": timings,
+                             "link_sha256": digest, "status": status})
+            latency = f"{mean}ms" if mean is not None else "-"
+            print(f"[{i:>3}/{len(candidates)}] {id_} {ip:16} {variant:23} {tls_variant:22} "
+                  f"{status:14} {count_ok}/{args.requests} {latency}", flush=True)
+            if args.dry_run and i == 1:
+                write_private_json(output / "example-config.json", candidate)
     finally:
         (output / ".candidate.json").unlink(missing_ok=True)
-    os.chmod(csv_path, 0o600)
-    qualifying = [(r, c) for r, c in results if r["successes"] == args.requests]
-    # Only fully successful profiles can win, unlike old mean=0 ranking.
+    safe_csv(output / "results.csv", fields, [r for r, _ in results])
+    safe_csv(output / "links.csv", ["id", "link"], links)
+    safe_text_file(output / "links.txt", [v["link"] for v in links])
+    safe_text_file(output / "manifest.jsonl", [json.dumps(m, ensure_ascii=False) for m in manifest])
+    ranked = sorted([r for r, _ in results], key=lambda r: (
+        -r["success_rate"],
+        float(r["p95_ms"]) if r["p95_ms"] != "" else float("inf"),
+        float(r["avg_ms"]) if r["avg_ms"] != "" else float("inf")))
+    safe_csv(output / "ranked.csv", fields, ranked)
+    qualifying = [(r, c) for r, c in results if not args.dry_run and r["successes"] == args.requests]
     if qualifying:
-        best, best_cfg = min(qualifying, key=lambda pair: pair[0]["avg_ms"])
+        best, best_cfg = min(qualifying, key=lambda pair: (
+            float(pair[0]["p95_ms"]) if pair[0]["p95_ms"] != "" else float("inf"),
+            float(pair[0]["avg_ms"]) if pair[0]["avg_ms"] != "" else float("inf")))
         best_cfg["inbounds"][0]["port"] = free_port()
         write_private_json(output / "best-config.json", best_cfg)
+        safe_text_file(output / "best-link.txt", [next(v["link"] for v in links if v["id"] == best["id"])])
         summary = {"winner": {k: v for k, v in best.items() if k != "reason"},
                    "note": "Full success required. Validate stability at another time."}
         write_private_json(output / "summary.json", summary)
-        print(f"\nBest full-success result: {best['address']} / {best['variant']} / {best['tls']}")
+        print(f"\nBest full-success result: {best['id']} / {best['address']} / {best['variant']}")
     else:
-        print("\nNo fully successful candidate; no best-config.json was generated.")
+        print("\nNo verified winner (offline or no fully successful candidate).")
     print(f"Results folder: {output}")
     return 0
 
