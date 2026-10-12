@@ -10,6 +10,7 @@ import argparse
 import copy
 import csv
 import getpass
+import re
 import ipaddress
 import itertools
 import json
@@ -35,23 +36,33 @@ ECH_DNS = [
     "185.228.169.9",
 ]
 
-# Go TLS 1.2 cipher suite identifiers, NOT guaranteed identical to PattNG's
-# "real_firefox_cipherSuites" preset. See docs/NETWORK_SCAN.md.
-FIREFOX_LIKE_CIPHERS = ":".join([
+
+# Exact PattNG UI resources supplied by the project maintainer.
+PATTNG_REAL_FIREFOX_CIPHERS = ":".join([
     "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
     "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
     "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
     "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256",
     "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
     "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+    "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+    "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+    "TLS_RSA_WITH_AES_128_GCM_SHA256",
+    "TLS_RSA_WITH_AES_256_GCM_SHA384",
+    "TLS_RSA_WITH_AES_128_CBC_SHA",
+    "TLS_RSA_WITH_AES_256_CBC_SHA",
 ])
-
-# This experimental profile follows a public Fragment+Fingerprint example;
-# it has NOT been verified to be byte-identical to PattNG's named preset.
-# Xray issue #6724 reports that non-final 0 in tlshello lengths may break TLS.
-EXPERIMENTAL_ZERO_MASK = {"tcp": [
+PATTNG_TLSHELLO_ZERO = {"tcp": [
     {"type": "fragment", "settings": {
         "packets": "tlshello", "lengths": ["0", "104", "1"],
+        "delays": ["0"], "maxSplit": "0"}},
+    {"type": "fragment", "settings": {
+        "packets": "1-1", "lengths": ["114", "1"],
+        "delays": ["1"], "maxSplit": "11"}},
+]}
+PATTNG_TLSHELLO = {"tcp": [
+    {"type": "fragment", "settings": {
+        "packets": "tlshello", "lengths": ["6", "98", "1"],
         "delays": ["0"], "maxSplit": "0"}},
     {"type": "fragment", "settings": {
         "packets": "1-1", "lengths": ["114", "1"],
@@ -65,6 +76,98 @@ ZERO_FREE_MASK = {"tcp": [
         "packets": "1-1", "lengths": ["114", "1"],
         "delays": ["1"], "maxSplit": "11"}},
 ]}
+FIREFOX_LIKE_CIPHERS = PATTNG_REAL_FIREFOX_CIPHERS
+EXPERIMENTAL_ZERO_MASK = PATTNG_TLSHELLO_ZERO
+DEFAULT_ECH_DOMAIN = "cloudflare-ech.com"
+ECH_SCHEMES = ("udp://", "tcp://", "https://", "http://", "h2c://", "quic://")
+MAX_IP_EXPANSION = 4096
+MAX_CANDIDATES = 100000
+
+def unique(items):
+    return list(dict.fromkeys(v for v in items if v))
+
+def parse_entries(raw):
+    return [v.strip() for line in raw.splitlines()
+            if not line.lstrip().startswith("#")
+            for v in line.split(",") if v.strip()]
+
+def validate_address(value):
+    try:
+        ipaddress.ip_address(value)
+        return value
+    except ValueError:
+        pass
+    try:
+        ascii_domain = value.encode("idna").decode("ascii")
+    except UnicodeError as exc:
+        raise ValueError(f"Invalid hostname: {value}") from exc
+    if (len(ascii_domain) > 253 or not ascii_domain or
+        any(not re.fullmatch(r"[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?", part)
+            for part in ascii_domain.rstrip('.').split('.'))):
+        raise ValueError(f"Invalid hostname/IP: {value}")
+    return value
+
+def expand_addresses(values):
+    all_addresses = []
+    for raw in values:
+        for value in parse_entries(raw):
+            if "/" in value:
+                try:
+                    network = ipaddress.ip_network(value, strict=False)
+                except ValueError as exc:
+                    raise ValueError(f"Invalid IP network: {value}") from exc
+                if network.num_addresses > MAX_IP_EXPANSION:
+                    raise ValueError(f"CIDR too broad (max {MAX_IP_EXPANSION} IPs): {value}")
+                all_addresses.extend(str(ip) for ip in network.hosts())
+            else:
+                all_addresses.append(validate_address(value))
+            if len(all_addresses) > MAX_IP_EXPANSION:
+                raise ValueError(f"Too many IP candidates (max {MAX_IP_EXPANSION})")
+    return unique(all_addresses)
+
+def split_ech(ech):
+    if not ech:
+        return None, None
+    if ech.startswith(ECH_SCHEMES):
+        return "", ech
+    if "+" in ech:
+        domain, resolver = ech.split("+", 1)
+        if resolver.startswith(ECH_SCHEMES):
+            validate_address(domain)
+            return domain, resolver
+    return None, None
+
+def normalize_resolver(resolver):
+    resolver = resolver.strip()
+    if not resolver:
+        raise ValueError("ECH resolver cannot be empty")
+    if "://" not in resolver:
+        resolver = f"udp://{resolver}"
+    if not resolver.startswith(ECH_SCHEMES):
+        raise ValueError(f"Unsupported ECH resolver syntax: {resolver}")
+    parsed = urlsplit(resolver)
+    if not parsed.hostname:
+        raise ValueError(f"ECH resolver missing host: {resolver}")
+    return resolver
+
+def make_ech_values(original, *, supplied=None, domains=None, resolvers=None,
+                    include_examples=False):
+    domain_from_link, resolver_from_link = split_ech(original)
+    values = [original] if original else []
+    values.extend(supplied or [])
+    domain_list = unique(domains or ([domain_from_link] if domain_from_link else []))
+    resolver_list = unique(normalize_resolver(r) for r in (resolvers or []))
+    if include_examples:
+        resolver_list = unique(resolver_list + [f"udp://{ip}" for ip in ECH_DNS])
+    if (domain_list or resolver_list) and not domain_list:
+        domain_list = [domain_from_link or ""]
+    if domain_list and not resolver_list:
+        resolver_list = [resolver_from_link or "udp://1.1.1.1"]
+    for domain, resolver in itertools.product(domain_list, resolver_list):
+        values.append(f"{domain}+{resolver}" if domain else resolver)
+    if not values:
+        values = [f"{DEFAULT_ECH_DOMAIN}+udp://1.1.1.1"]
+    return unique(values)
 
 
 def extract_finalmask(raw: str):
@@ -172,39 +275,56 @@ def proxy(cfg):
     return cfg["outbounds"][0]
 
 
+
 def build_candidates(cfg: dict, method: str, ips=None, dns=None,
                      custom_mask=None, experimental_zero=False,
-                     custom_ciphers=None):
+                     custom_ciphers=None, ech_values=None):
     original = copy.deepcopy(cfg)
     yield ("original", "original", "original", original)
     ips = ips if ips is not None else CF_IPS
+    if not ips:
+        raise ValueError("At least one address is required")
+    ips = unique(validate_address(ip) for ip in ips)
     if method == "ech":
         if proxy(cfg)["streamSettings"]["security"] != "tls":
             raise ValueError("ECH mode requires security=tls")
-        for ip, server in itertools.product(ips, dns if dns is not None else ECH_DNS):
-            ipaddress.ip_address(ip)
+        original_ech = proxy(cfg)["streamSettings"]["tlsSettings"].get("echConfigList", "")
+        if ech_values is not None:
+            values = unique(ech_values)
+        elif dns is not None:
+            domain, _ = split_ech(original_ech)
+            values = make_ech_values("", domains=[domain or DEFAULT_ECH_DOMAIN],
+                                     resolvers=dns)
+        else:
+            values = make_ech_values(original_ech)
+        if not values:
+            raise ValueError("Provide one or more ECH expressions")
+        if len(ips) * len(values) + 1 > MAX_CANDIDATES:
+            raise ValueError(f"Too many configurations (max {MAX_CANDIDATES})")
+        for ip, ech in itertools.product(ips, values):
             x = copy.deepcopy(cfg)
             proxy(x)["settings"]["address"] = ip
             st = proxy(x)["streamSettings"]
             st["tlsSettings"]["fingerprint"] = "chrome"
-            st["tlsSettings"]["echConfigList"] = f"cloudflare-ech.com+udp://{server}"
-            st.pop("finalmask", None)  # compare ECH alone rather than mixed masks
-            yield (ip, server, "ECH+chrome", x)
+            st["tlsSettings"]["echConfigList"] = ech
+            st.pop("finalmask", None)
+            yield (ip, ech, "ECH+chrome", x)
     elif method == "irancell":
         if proxy(cfg)["streamSettings"]["security"] != "tls":
-            raise ValueError("FinalMask+TLS fingerprint mode requires security=tls")
-        masks = [("zero-free", ZERO_FREE_MASK), ("none", None)]
-        if experimental_zero:
-            masks.append(("experimental-zero", EXPERIMENTAL_ZERO_MASK))
+            raise ValueError("FinalMask+TLS mode requires security=tls")
+        masks = [("pattng-tlshello-0-len", PATTNG_TLSHELLO_ZERO),
+                 ("pattng-tlshello", PATTNG_TLSHELLO),
+                 ("zero-free", ZERO_FREE_MASK), ("none", None)]
         if custom_mask is not None:
-            masks.insert(0, ("custom-pattng", custom_mask))
-        cipher_variants = [("native-default", None),
-                           ("firefox-like-approx", FIREFOX_LIKE_CIPHERS)]
+            masks.insert(0, ("custom", custom_mask))
+        ciphers = [("native-default", None),
+                   ("pattng-real-firefox", PATTNG_REAL_FIREFOX_CIPHERS)]
         if custom_ciphers is not None:
-            cipher_variants.insert(0, ("custom-pattng", custom_ciphers))
+            ciphers.insert(0, ("custom", custom_ciphers))
+        if len(ips) * len(masks) * len(ciphers) + 1 > MAX_CANDIDATES:
+            raise ValueError(f"Too many configurations (max {MAX_CANDIDATES})")
         for ip, (mask_name, mask), (cipher_name, cipher) in itertools.product(
-                ips, masks, cipher_variants):
-            ipaddress.ip_address(ip)
+                ips, masks, ciphers):
             x = copy.deepcopy(cfg)
             proxy(x)["settings"]["address"] = ip
             st = proxy(x)["streamSettings"]
@@ -331,26 +451,93 @@ def get_link(args):
     return getpass.getpass("Paste your VLESS link (input hidden): ").strip()
 
 
+
 def parse_args(argv=None):
-    p = argparse.ArgumentParser(description="Non-root IP/ECH and FinalMask scanner")
+    p = argparse.ArgumentParser(description="Customizable IP/ECH and PattNG FinalMask scanner")
     p.add_argument("--method", choices=["ech", "irancell"], required=True)
     p.add_argument("--link-file", help="Read VLESS URL from a file (prefer chmod 600)")
-    p.add_argument("--all", action="store_true", help="Scan every candidate; may take a long time")
-    p.add_argument("--limit", type=int, help="Limit candidates (includes original baseline)")
+    p.add_argument("--ip", action="append", default=[],
+                   help="Address, hostname, CIDR, or comma-separated addresses (repeatable)")
+    p.add_argument("--ip-file", type=Path, help="IPs, domains or CIDRs per line")
+    p.add_argument("--example-ips", action="store_true")
+    p.add_argument("--ech", action="append", default=[], help="Full ECH expression (repeatable)")
+    p.add_argument("--ech-file", type=Path, help="One complete ECH expression per line")
+    p.add_argument("--ech-domain", action="append", default=[], help="ECH DNS lookup hostname")
+    p.add_argument("--ech-resolver", action="append", default=[], help="DNS resolver URI or IP")
+    p.add_argument("--example-ech", action="store_true", help="Add 18 example resolvers")
+    p.add_argument("--no-link-ech", action="store_true", help="Exclude link ECH from variants")
+    p.add_argument("--no-prompt", action="store_true")
+    p.add_argument("--all", action="store_true")
+    p.add_argument("--limit", type=int)
     p.add_argument("--requests", type=int, default=3)
     p.add_argument("--timeout", type=float, default=8)
     p.add_argument("--seed", type=int, default=2026)
     p.add_argument("--url", default="https://www.gstatic.com/generate_204")
-    p.add_argument("--xray", help="Xray executable path (default: PATH or /usr/local/bin/xray)")
-    p.add_argument("--output", type=Path, help="Output folder (default ~/.local/share/...)")
-    p.add_argument("--dry-run", action="store_true", help="Generate and inspect configs; no network or xray")
-    p.add_argument("--experimental-zero", action="store_true", help="Include potentially broken zero-length preset")
-    p.add_argument("--finalmask-json", type=Path, help="Exact PattNG finalmask JSON export (if you have it)")
-    p.add_argument("--cipher-file", type=Path, help="Exact colon-separated PattNG cipherSuites string")
+    p.add_argument("--xray")
+    p.add_argument("--output", type=Path)
+    p.add_argument("--dry-run", action="store_true")
+    p.add_argument("--experimental-zero", action="store_true",
+                   help="Deprecated; exact PattNG zero preset now included")
+    p.add_argument("--finalmask-json", type=Path)
+    p.add_argument("--cipher-file", type=Path)
     a = p.parse_args(argv)
     if a.requests < 1 or a.timeout <= 0 or (a.limit is not None and a.limit < 1):
         p.error("requests, timeout and limit must be positive")
     return a
+
+def prompt_candidates(args, cfg):
+    if args.no_prompt or not sys.stdin.isatty():
+        return
+    print("\nThe example IPs and ECH resolvers are not fixed or guaranteed to work.")
+    more_ips = input("Add or replace IP/host/CIDR candidates (Enter to keep): ").strip()
+    if more_ips:
+        mode = input("Replace example IPs instead of adding? [y/N]: ").strip().lower()
+        if mode == "y":
+            args.ip = [more_ips]
+            args.example_ips = False
+        else:
+            if not args.ip and not args.ip_file:
+                args.example_ips = True
+            args.ip.append(more_ips)
+    if args.method == "ech":
+        if proxy(cfg)["streamSettings"]["tlsSettings"].get("echConfigList"):
+            print("ECH found in the VLESS link; included by default.")
+        else:
+            print("Link has no ECH; one example ECH expression will be used.")
+        e = input("Additional FULL ECH expressions (comma-separated, optional): ").strip()
+        if e:
+            args.ech.extend(parse_entries(e))
+        d = input("Additional ECH lookup domains (comma-separated, optional): ").strip()
+        if d:
+            args.ech_domain.extend(parse_entries(d))
+        r = input("Additional resolvers, IP or URI (comma-separated, optional): ").strip()
+        if r:
+            args.ech_resolver.extend(parse_entries(r))
+        if not args.example_ech:
+            args.example_ech = input("Include 18 example resolvers? [y/N]: ").strip().lower() in ("y", "yes")
+
+def resolve_candidate_inputs(args, cfg):
+    ip_inputs = list(args.ip)
+    if args.ip_file:
+        ip_inputs.append(args.ip_file.read_text(encoding="utf-8"))
+    if args.example_ips or not ip_inputs:
+        ip_inputs.extend(CF_IPS)
+    ips = expand_addresses(ip_inputs)
+    if args.method != "ech":
+        return ips, None
+    original_ech = proxy(cfg)["streamSettings"].get("tlsSettings", {}).get("echConfigList", "")
+    supplied = list(args.ech)
+    if args.ech_file:
+        supplied.extend(parse_entries(args.ech_file.read_text(encoding="utf-8")))
+    domains = unique(v for part in args.ech_domain for v in parse_entries(part))
+    for domain in domains:
+        validate_address(domain)
+    resolvers = unique(v for part in args.ech_resolver for v in parse_entries(part))
+    ech_values = make_ech_values("" if args.no_link_ech else original_ech,
+                                 supplied=unique(supplied), domains=domains or None,
+                                 resolvers=resolvers or None,
+                                 include_examples=args.example_ech)
+    return ips, ech_values
 
 
 def main(argv=None):
@@ -370,9 +557,14 @@ def main(argv=None):
         if not custom_ciphers:
             raise SystemExit("Error: --cipher-file is empty")
     cfg = vless_to_config(get_link(args))
-    candidates = list(build_candidates(cfg, args.method,
-                      custom_mask=custom_mask, experimental_zero=args.experimental_zero,
+    prompt_candidates(args, cfg)
+    ips, ech_values = resolve_candidate_inputs(args, cfg)
+    candidates = list(build_candidates(cfg, args.method, ips=ips,
+                      ech_values=ech_values, custom_mask=custom_mask,
                       custom_ciphers=custom_ciphers))
+    print(f"Scan plan: {len(ips)} addresses; " +
+          (f"{len(ech_values)} ECH expressions" if ech_values is not None else "PattNG FinalMask presets") +
+          f"; total {len(candidates)} candidates (including original).")
     limit = None if args.all else (args.limit if args.limit is not None else
                                   (22 if args.method == "ech" else 15))
     candidates = balanced_sample(candidates, limit, args.seed)
