@@ -5,6 +5,10 @@ set -uo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # New modes operate as an unprivileged process and never touch systemd/Xray installs.
+if [[ "${1:-}" == "--method" && "${2:-}" == "optimize" ]]; then
+    shift 2
+    exec python3 "$PROJECT_ROOT/lib/optimize.py" "$@"
+fi
 if [[ "${1:-}" == "--method" ]]; then
     exec python3 "$PROJECT_ROOT/lib/network_scan.py" "$@"
 fi
@@ -14,10 +18,12 @@ if [[ $# -eq 0 ]]; then
     echo "1) Existing fragment modes (legacy, finalmask, header-custom)"
     echo "2) IP + ECH matrix (Rightel / MCI experiment)"
     echo "3) IP + FinalMask / unsafe / cipher matrix (Irancell experiment)"
+    echo "4) Optimize fragments/finalmask + export VLESS links and analytics"
     read -r -p "Select [1]: " startup_mode
     case "${startup_mode:-1}" in
         2) exec python3 "$PROJECT_ROOT/lib/network_scan.py" --method ech ;;
         3) exec python3 "$PROJECT_ROOT/lib/network_scan.py" --method irancell ;;
+        4) exec python3 "$PROJECT_ROOT/lib/optimize.py" ;;
         1) ;;
         *) echo "Unknown mode" >&2; exit 2 ;;
     esac

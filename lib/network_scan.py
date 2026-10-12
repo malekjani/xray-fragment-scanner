@@ -36,8 +36,8 @@ ECH_DNS = [
     "185.228.169.9",
 ]
 
-
-# Exact PattNG UI resources supplied by the project maintainer.
+# PattNG literal UI presets, verified against the provided strings.xml and
+# FieldPresetsTest.kt. These are not guessed browser fingerprints.
 PATTNG_REAL_FIREFOX_CIPHERS = ":".join([
     "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
     "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
@@ -76,22 +76,31 @@ ZERO_FREE_MASK = {"tcp": [
         "packets": "1-1", "lengths": ["114", "1"],
         "delays": ["1"], "maxSplit": "11"}},
 ]}
-FIREFOX_LIKE_CIPHERS = PATTNG_REAL_FIREFOX_CIPHERS
+# API aliases maintained for callers importing from the v2 scanner.
 EXPERIMENTAL_ZERO_MASK = PATTNG_TLSHELLO_ZERO
+FIREFOX_LIKE_CIPHERS = PATTNG_REAL_FIREFOX_CIPHERS
+
+# These are examples from a network report, NOT a set of permitted/known-good
+# Cloudflare addresses. A custom IP, CIDR, or hostname may be passed instead.
 DEFAULT_ECH_DOMAIN = "cloudflare-ech.com"
 ECH_SCHEMES = ("udp://", "tcp://", "https://", "http://", "h2c://", "quic://")
 MAX_IP_EXPANSION = 4096
 MAX_CANDIDATES = 100000
 
+
 def unique(items):
     return list(dict.fromkeys(v for v in items if v))
 
+
 def parse_entries(raw):
+    """Read newline / comma separated IP or ECH entries (not URL query fields)."""
     return [v.strip() for line in raw.splitlines()
             if not line.lstrip().startswith("#")
             for v in line.split(",") if v.strip()]
 
+
 def validate_address(value):
+    """Allow an IP or DNS hostname, without assuming a particular CDN range."""
     try:
         ipaddress.ip_address(value)
         return value
@@ -107,7 +116,9 @@ def validate_address(value):
         raise ValueError(f"Invalid hostname/IP: {value}")
     return value
 
+
 def expand_addresses(values):
+    """Explicit CIDR expansion (capped), or individual IPv4/IPv6/hostnames."""
     all_addresses = []
     for raw in values:
         for value in parse_entries(raw):
@@ -125,7 +136,9 @@ def expand_addresses(values):
                 raise ValueError(f"Too many IP candidates (max {MAX_IP_EXPANSION})")
     return unique(all_addresses)
 
+
 def split_ech(ech):
+    """Return domain and resolver when a link contains a DNS-based ECH value."""
     if not ech:
         return None, None
     if ech.startswith(ECH_SCHEMES):
@@ -135,7 +148,8 @@ def split_ech(ech):
         if resolver.startswith(ECH_SCHEMES):
             validate_address(domain)
             return domain, resolver
-    return None, None
+    return None, None  # could be a static base64 ECHConfig; keep it verbatim
+
 
 def normalize_resolver(resolver):
     resolver = resolver.strip()
@@ -150,8 +164,14 @@ def normalize_resolver(resolver):
         raise ValueError(f"ECH resolver missing host: {resolver}")
     return resolver
 
+
 def make_ech_values(original, *, supplied=None, domains=None, resolvers=None,
                     include_examples=False):
+    """The VLESS link's ECH is the seed; optional sample/custom values expand it.
+
+    If a link provides a domain+resolver pattern, preserve its exact domain
+    while varying resolvers. No DNS resolver/domain is presumed to work.
+    """
     domain_from_link, resolver_from_link = split_ech(original)
     values = [original] if original else []
     values.extend(supplied or [])
@@ -160,12 +180,15 @@ def make_ech_values(original, *, supplied=None, domains=None, resolvers=None,
     if include_examples:
         resolver_list = unique(resolver_list + [f"udp://{ip}" for ip in ECH_DNS])
     if (domain_list or resolver_list) and not domain_list:
+        # No explicit domain: use Xray's lookup of the configured serverName,
+        # except when caller asked to build the original named ECH sample set.
         domain_list = [domain_from_link or ""]
     if domain_list and not resolver_list:
         resolver_list = [resolver_from_link or "udp://1.1.1.1"]
     for domain, resolver in itertools.product(domain_list, resolver_list):
         values.append(f"{domain}+{resolver}" if domain else resolver)
     if not values:
+        # A sensible single fallback (not a claim of connectivity).
         values = [f"{DEFAULT_ECH_DOMAIN}+udp://1.1.1.1"]
     return unique(values)
 
@@ -243,6 +266,10 @@ def vless_to_config(link: str, listen_port: int = 0) -> dict:
             tls["echConfigList"] = q("ech")
         if q("cs") or q("cipherSuites"):
             tls["cipherSuites"] = q("cs") or q("cipherSuites")
+        if q("pcs"):
+            tls["pinnedPeerCertSha256"] = q("pcs")
+        if q("vcn"):
+            tls["verifyPeerCertByName"] = q("vcn")
         stream["tlsSettings"] = tls
     elif security == "reality":
         reality = {"serverName": q("sni") or host or dest}
@@ -275,10 +302,13 @@ def proxy(cfg):
     return cfg["outbounds"][0]
 
 
-
 def build_candidates(cfg: dict, method: str, ips=None, dns=None,
                      custom_mask=None, experimental_zero=False,
                      custom_ciphers=None, ech_values=None):
+    """Build address × ECH or address × FinalMask candidates, plus baseline.
+
+    dns= is an older API accepting bare DNS IPs; full ech_values= is preferred.
+    """
     original = copy.deepcopy(cfg)
     yield ("original", "original", "original", original)
     ips = ips if ips is not None else CF_IPS
@@ -296,6 +326,8 @@ def build_candidates(cfg: dict, method: str, ips=None, dns=None,
             values = make_ech_values("", domains=[domain or DEFAULT_ECH_DOMAIN],
                                      resolvers=dns)
         else:
+            # Link first, then source-derived resolver alternatives; no hardcoded
+            # 18-entry assumption. Full example matrix is opt-in in the CLI.
             values = make_ech_values(original_ech)
         if not values:
             raise ValueError("Provide one or more ECH expressions")
@@ -307,7 +339,7 @@ def build_candidates(cfg: dict, method: str, ips=None, dns=None,
             st = proxy(x)["streamSettings"]
             st["tlsSettings"]["fingerprint"] = "chrome"
             st["tlsSettings"]["echConfigList"] = ech
-            st.pop("finalmask", None)
+            st.pop("finalmask", None)  # isolate ECH effects
             yield (ip, ech, "ECH+chrome", x)
     elif method == "irancell":
         if proxy(cfg)["streamSettings"]["security"] != "tls":
@@ -330,7 +362,7 @@ def build_candidates(cfg: dict, method: str, ips=None, dns=None,
             st = proxy(x)["streamSettings"]
             tls = st["tlsSettings"]
             tls.pop("echConfigList", None)
-            tls["fingerprint"] = "unsafe"
+            tls["fingerprint"] = "unsafe"  # native TLS, NOT insecure verification
             tls.pop("cipherSuites", None)
             if cipher is not None:
                 tls["cipherSuites"] = cipher
@@ -397,7 +429,7 @@ def probe(port, url, timeout):
         return False, None
 
 
-def run_candidate(xray, cfg, cfg_file, url, count, timeout):
+def run_candidate(xray, cfg, cfg_file, url, count, timeout, times_out=None):
     test_cmd = [xray, "run", "-test", "-c", str(cfg_file)]
     try:
         valid = subprocess.run(test_cmd, capture_output=True, text=True, timeout=12)
@@ -429,6 +461,8 @@ def run_candidate(xray, cfg, cfg_file, url, count, timeout):
                 success, ms = probe(port, url, timeout)
                 ok.append(ms if success else None)
             succeeded = [x for x in ok if x is not None]
+            if times_out is not None:
+                times_out.extend(succeeded)
             # Success ratio has precedence over latency in ranking.
             return ("OK" if succeeded else "FAILED", len(succeeded),
                     round(sum(succeeded) / len(succeeded), 2) if succeeded else None,
@@ -451,47 +485,55 @@ def get_link(args):
     return getpass.getpass("Paste your VLESS link (input hidden): ").strip()
 
 
-
 def parse_args(argv=None):
     p = argparse.ArgumentParser(description="Customizable IP/ECH and PattNG FinalMask scanner")
     p.add_argument("--method", choices=["ech", "irancell"], required=True)
     p.add_argument("--link-file", help="Read VLESS URL from a file (prefer chmod 600)")
     p.add_argument("--ip", action="append", default=[],
-                   help="Address, hostname, CIDR, or comma-separated addresses (repeatable)")
-    p.add_argument("--ip-file", type=Path, help="IPs, domains or CIDRs per line")
-    p.add_argument("--example-ips", action="store_true")
-    p.add_argument("--ech", action="append", default=[], help="Full ECH expression (repeatable)")
-    p.add_argument("--ech-file", type=Path, help="One complete ECH expression per line")
-    p.add_argument("--ech-domain", action="append", default=[], help="ECH DNS lookup hostname")
-    p.add_argument("--ech-resolver", action="append", default=[], help="DNS resolver URI or IP")
-    p.add_argument("--example-ech", action="store_true", help="Add 18 example resolvers")
-    p.add_argument("--no-link-ech", action="store_true", help="Exclude link ECH from variants")
-    p.add_argument("--no-prompt", action="store_true")
-    p.add_argument("--all", action="store_true")
-    p.add_argument("--limit", type=int)
+                   help="Explicit address, hostname, CIDR, or comma-separated addresses; repeatable")
+    p.add_argument("--ip-file", type=Path,
+                   help="IPs/hostnames/CIDRs separated by lines, commas, comments (#)")
+    p.add_argument("--example-ips", action="store_true", help="Include example Cloudflare IPs in addition")
+    p.add_argument("--ech", action="append", default=[],
+                   help="Full ECHConfigList expression, repeatable")
+    p.add_argument("--ech-file", type=Path, help="Full ECHConfigList expressions, one per line")
+    p.add_argument("--ech-domain", action="append", default=[],
+                   help="ECH DNS lookup hostname, repeatable; combine with resolvers")
+    p.add_argument("--ech-resolver", action="append", default=[],
+                   help="Resolver URI (udp://, https:// etc.) or bare IP, repeatable")
+    p.add_argument("--example-ech", action="store_true",
+                   help="Also test the 18 example resolvers using the LINK's ECH domain")
+    p.add_argument("--no-link-ech", action="store_true",
+                   help="Omit the link ECH as a scan candidate (baseline unchanged)")
+    p.add_argument("--no-prompt", action="store_true",
+                   help="Do not ask for additional IP/ECH values on an interactive terminal")
+    p.add_argument("--all", action="store_true", help="Scan every candidate; may take a long time")
+    p.add_argument("--limit", type=int, help="Limit candidates (includes original baseline)")
     p.add_argument("--requests", type=int, default=3)
     p.add_argument("--timeout", type=float, default=8)
     p.add_argument("--seed", type=int, default=2026)
     p.add_argument("--url", default="https://www.gstatic.com/generate_204")
-    p.add_argument("--xray")
-    p.add_argument("--output", type=Path)
-    p.add_argument("--dry-run", action="store_true")
-    p.add_argument("--experimental-zero", action="store_true",
-                   help="Deprecated; exact PattNG zero preset now included")
-    p.add_argument("--finalmask-json", type=Path)
-    p.add_argument("--cipher-file", type=Path)
+    p.add_argument("--xray", help="Xray executable path (default: PATH or /usr/local/bin/xray)")
+    p.add_argument("--output", type=Path, help="Output folder (default ~/.local/share/...)")
+    p.add_argument("--dry-run", action="store_true", help="Generate candidates, do not run Xray")
+    p.add_argument("--experimental-zero", action="store_true", help="Deprecated: exact PattNG zero preset is now included by default")
+    p.add_argument("--finalmask-json", type=Path, help="Additional custom finalmask JSON")
+    p.add_argument("--cipher-file", type=Path, help="Additional colon-separated cipher list")
     a = p.parse_args(argv)
     if a.requests < 1 or a.timeout <= 0 or (a.limit is not None and a.limit < 1):
         p.error("requests, timeout and limit must be positive")
     return a
 
+
 def prompt_candidates(args, cfg):
+    """Only interactive runs ask about extending suggested IP/ECH inputs."""
     if args.no_prompt or not sys.stdin.isatty():
         return
-    print("\nThe example IPs and ECH resolvers are not fixed or guaranteed to work.")
-    more_ips = input("Add or replace IP/host/CIDR candidates (Enter to keep): ").strip()
+    print("\nCandidate values are examples, not a whitelist or guaranteed working set.")
+    print("Press Enter to keep the link-derived and supplied values unchanged.")
+    more_ips = input("Add or replace IP/host/CIDR candidates (comma-separated, Enter to keep): ").strip()
     if more_ips:
-        mode = input("Replace example IPs instead of adding? [y/N]: ").strip().lower()
+        mode = input("Replace the example IPs instead of adding? [y/N]: ").strip().lower()
         if mode == "y":
             args.ip = [more_ips]
             args.example_ips = False
@@ -500,21 +542,24 @@ def prompt_candidates(args, cfg):
                 args.example_ips = True
             args.ip.append(more_ips)
     if args.method == "ech":
-        if proxy(cfg)["streamSettings"]["tlsSettings"].get("echConfigList"):
-            print("ECH found in the VLESS link; included by default.")
+        original = proxy(cfg)["streamSettings"]["tlsSettings"].get("echConfigList", "")
+        if original:
+            print("Original link contains ECH; it is included as a candidate by default.")
         else:
-            print("Link has no ECH; one example ECH expression will be used.")
-        e = input("Additional FULL ECH expressions (comma-separated, optional): ").strip()
+            print("No ECH in link; a single example ECH expression is the fallback.")
+        e = input("Additional FULL ECH expressions (comma-separated, Enter to skip): ").strip()
         if e:
             args.ech.extend(parse_entries(e))
-        d = input("Additional ECH lookup domains (comma-separated, optional): ").strip()
+        d = input("Additional ECH lookup domains (comma-separated, Enter to skip): ").strip()
         if d:
             args.ech_domain.extend(parse_entries(d))
-        r = input("Additional resolvers, IP or URI (comma-separated, optional): ").strip()
+        r = input("Additional ECH resolvers, IP or URI (comma-separated, Enter to skip): ").strip()
         if r:
             args.ech_resolver.extend(parse_entries(r))
         if not args.example_ech:
-            args.example_ech = input("Include 18 example resolvers? [y/N]: ").strip().lower() in ("y", "yes")
+            include = input("Also include the 18 historical example DNS resolvers? [y/N]: ")
+            args.example_ech = include.strip().lower() in ("y", "yes")
+
 
 def resolve_candidate_inputs(args, cfg):
     ip_inputs = list(args.ip)
@@ -525,16 +570,22 @@ def resolve_candidate_inputs(args, cfg):
     ips = expand_addresses(ip_inputs)
     if args.method != "ech":
         return ips, None
-    original_ech = proxy(cfg)["streamSettings"].get("tlsSettings", {}).get("echConfigList", "")
+    tls = proxy(cfg)["streamSettings"].get("tlsSettings", {})
+    original_ech = tls.get("echConfigList", "")
     supplied = list(args.ech)
     if args.ech_file:
         supplied.extend(parse_entries(args.ech_file.read_text(encoding="utf-8")))
+    supplied = unique(supplied)
+    for item in supplied:
+        # Static base64 ECH configs are legitimate; Xray validates them.
+        if not item:
+            raise ValueError("ECH expression is empty")
     domains = unique(v for part in args.ech_domain for v in parse_entries(part))
     for domain in domains:
         validate_address(domain)
     resolvers = unique(v for part in args.ech_resolver for v in parse_entries(part))
     ech_values = make_ech_values("" if args.no_link_ech else original_ech,
-                                 supplied=unique(supplied), domains=domains or None,
+                                 supplied=supplied, domains=domains or None,
                                  resolvers=resolvers or None,
                                  include_examples=args.example_ech)
     return ips, ech_values
