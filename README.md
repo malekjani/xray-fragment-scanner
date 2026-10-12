@@ -138,15 +138,20 @@ Both modes record actual proxied HTTPS success rates, require 100% success
 before naming a best candidate, and write private `results.csv` and
 `best-config.json`. See [docs/NETWORK_SCAN.md](docs/NETWORK_SCAN.md).
 
+## New (October 2026): flexible IP/ECH + exact PattNG presets
 
-## October 2026: flexible ECH/IP scanning and exact PattNG presets
+The non-root network experiments are available from menu choices **2** and
+**3**, or using `./bin/xray-finalmask-scanner --method ech` and
+`--method irancell`. Candidate addresses can be a custom IP/hostname/CIDR
+list; ECH can come directly from `ech=` in a VLESS link, a custom full ECH
+expression, lookup domain × resolver URI combinations, or an opt-in sample
+list. The previously shared seven IPs and eighteen resolvers are **examples**,
+not a hardcoded scanner limit or a compatibility guarantee. The exact PattNG
+`tlshello-0-len`, `tlshello`, and `real-firefox-cipherSuites` presets are
+included. They have been checked against supplied PattNG code and current
+upstream Xray documentation.
 
-Network scanner modes 2 (ECH) and 3 (FinalMask/unsafe/Firefox ciphers) now
-accept arbitrary IPs, hostnames, CIDR files, full ECH values or combinations
-of ECH domains and resolvers. The old 7 IPs and 18 DNS addresses are optional
-examples, not hardcoded limits. Exact PattNG `tlshello-0-len`, `tlshello`,
-and `real-firefox-cipherSuites` presets are included.
-Use `--no-prompt` for automation and see
-[docs/NETWORK_SCAN.md](docs/NETWORK_SCAN.md) for examples, privacy and
-upstream compatibility. Mode 1 is still the legacy root-required workflow;
-modes 2 and 3 do not touch system services.
+See [docs/NETWORK_SCAN.md](docs/NETWORK_SCAN.md) for CLI options, examples,
+Xray 2026 compatibility notes and testing caveats. Network experiments do not
+need `sudo` and do not restart the system's Xray service; the original
+fragment scanner (menu choice 1) still needs root for its old workflow.
