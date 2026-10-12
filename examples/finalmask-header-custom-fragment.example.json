@@ -1,0 +1,35 @@
+{
+  "streamSettings": {
+    "network": "tcp",
+    "security": "tls",
+    "finalmask": {
+      "tcp": [
+        {
+          "type": "header-custom",
+          "settings": {
+            "clients": [
+              [
+                {
+                  "delay": 0,
+                  "type": "str",
+                  "packet": "GET / HTTP/1.1\r\nHost: www.cloudflare.com\r\nUser-Agent: Mozilla/5.0\r\nAccept: */*\r\nConnection: keep-alive\r\n\r\n"
+                }
+              ]
+            ],
+            "servers": [],
+            "errors": []
+          }
+        },
+        {
+          "type": "fragment",
+          "settings": {
+            "packets": "tlshello",
+            "length": "5-10",
+            "delay": "5-10",
+            "maxSplit": "1-3"
+          }
+        }
+      ]
+    }
+  }
+}
