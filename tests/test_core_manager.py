@@ -53,6 +53,54 @@ class CoreManagerTests(unittest.TestCase):
         with self.assertRaises(c.CoreError):
             c.select_latest([release(prerelease=False)], "Xray-linux-64.zip")
 
+
+    def test_paginated_release_fetch_stops_after_verified_prerelease(self):
+        """First page can contain stable releases without blocking pre-release lookup."""
+        class Reply:
+            def __init__(self, rows):
+                self.data = io.BytesIO(json.dumps(rows).encode())
+            def __enter__(self): return self
+            def __exit__(self, *exc): return False
+            def read(self, length): return self.data.read(length)
+
+        first = [release(tag=f"v26.10.{10+i}", prerelease=False) for i in range(c.PAGE_SIZE)]
+        second = [release()]
+        urls = []
+        def urlopen(request, timeout):
+            urls.append(request.full_url)
+            return Reply(first if "&page=1" in request.full_url else second)
+
+        with patch.object(c, "linux_archive", return_value="Xray-linux-64.zip"), \
+             patch.object(c.urllib.request, "urlopen", side_effect=urlopen):
+            got = c.fetch_releases()
+        self.assertEqual(len(got), c.PAGE_SIZE + 1)
+        self.assertEqual(len(urls), 2)
+        self.assertIn("per_page=10&page=2", urls[-1])
+        self.assertEqual(c.select_latest(got, "Xray-linux-64.zip")["tag"], TAG)
+
+    def test_fetch_metadata_has_safe_bounded_size_and_fails_closed(self):
+        class Oversized:
+            def __enter__(self): return self
+            def __exit__(self, *exc): return False
+            def read(self, length): return b"x" * length
+
+        with patch.object(c, "linux_archive", return_value="Xray-linux-64.zip"), \
+             patch.object(c.urllib.request, "urlopen", return_value=Oversized()):
+            with self.assertRaisesRegex(c.CoreError, "Unexpectedly large"):
+                c.fetch_releases()
+
+    def test_valid_first_page_does_not_fetch_more(self):
+        class Reply:
+            def __enter__(self): return self
+            def __exit__(self, *exc): return False
+            def read(self, _max): return json.dumps([release()]).encode()
+
+        with patch.object(c, "linux_archive", return_value="Xray-linux-64.zip"), \
+             patch.object(c.urllib.request, "urlopen", return_value=Reply()) as fetch:
+            got = c.fetch_releases()
+        self.assertEqual(len(got), 1)
+        fetch.assert_called_once()
+
     def test_cached_verified_version_and_no_redownload(self):
         with tempfile.TemporaryDirectory() as d, patch.object(c, "linux_archive", return_value="Xray-linux-64.zip"):
             data = archive_bytes()

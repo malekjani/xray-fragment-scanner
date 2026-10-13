@@ -18,6 +18,16 @@ if [[ "${1:-}" == "--diagnose" ]]; then
     exec python3 "$PROJECT_ROOT/lib/diagnose.py" "$@"
 fi
 
+# V8 draft entry points: local-only dashboard and fixed-matrix engine.
+if [[ "${1:-}" == "--web" || "${1:-}" == "--v8-web" ]]; then
+    shift
+    exec python3 "$PROJECT_ROOT/lib/v8_web.py" "$@"
+fi
+if [[ "${1:-}" == "--method" && "${2:-}" == "v8" ]]; then
+    shift 2
+    exec python3 "$PROJECT_ROOT/lib/v8_engine.py" "$@"
+fi
+
 # New modes operate as an unprivileged process and never touch systemd/Xray installs.
 if [[ "${1:-}" == "--method" && "${2:-}" == "optimize" ]]; then
     shift 2
@@ -28,7 +38,12 @@ if [[ "${1:-}" == "--method" ]]; then
 fi
 
 if [[ $# -eq 0 || "${1:-}" == "--interactive" || "${1:-}" == "--wizard" ]]; then
-    exec python3 "$PROJECT_ROOT/lib/wizard.py"
+    exec python3 "$PROJECT_ROOT/lib/v8_wizard.py"
+fi
+
+if [[ "${1:-}" == "--v7-wizard" ]]; then
+    shift
+    exec python3 "$PROJECT_ROOT/lib/wizard.py" "$@"
 fi
 
 if [[ "${1:-}" == "--legacy-menu" ]]; then
@@ -43,7 +58,7 @@ if [[ "${1:-}" == "--legacy-menu" ]]; then
         3) exec python3 "$PROJECT_ROOT/lib/network_scan.py" --method irancell ;;
         4) exec python3 "$PROJECT_ROOT/lib/optimize.py" ;;
         1) echo "Historical mode requires --legacy-system-mode; opening the safe modern wizard." >&2
-           exec python3 "$PROJECT_ROOT/lib/wizard.py" ;;
+           exec python3 "$PROJECT_ROOT/lib/v8_wizard.py" ;;
         *) echo "Unknown mode" >&2; exit 2 ;;
     esac
 fi
