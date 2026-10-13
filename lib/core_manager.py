@@ -22,7 +22,12 @@ import urllib.error
 import urllib.request
 import zipfile
 
-API = "https://api.github.com/repos/XTLS/Xray-core/releases?per_page=30"
+# Small pages avoid GitHub's large release metadata (30 releases > 3 MiB).
+# Search subsequent pages only if the initial page has no verified pre-release.
+API = "https://api.github.com/repos/XTLS/Xray-core/releases?per_page=10"
+PAGE_SIZE = 10
+MAX_RELEASE_PAGES = 8
+MAX_METADATA_BYTES = 8 * 1024 * 1024
 REPO_RELEASES = "https://github.com/XTLS/Xray-core/releases/download/"
 CACHE_ROOT = Path.home() / ".local" / "share" / "xray-finalmask-scanner" / "cores"
 MAX_ZIP_BYTES = 150 * 1024 * 1024
@@ -50,24 +55,46 @@ def linux_archive() -> str:
 
 
 def fetch_releases(timeout=12) -> list[dict]:
-    request = urllib.request.Request(API, headers={
-        "Accept": "application/vnd.github+json",
-        "User-Agent": "xray-finalmask-scanner-prerelease-manager",
-        "X-GitHub-Api-Version": "2022-11-28",
-    })
-    try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
-            data = response.read(2 * 1024 * 1024 + 1)
-    except (OSError, urllib.error.URLError) as exc:
-        raise CoreError("Unable to check official Xray pre-releases; check network or GitHub API limits") from exc
-    if len(data) > 2 * 1024 * 1024:
-        raise CoreError("Unexpectedly large GitHub release metadata")
-    try:
-        releases = json.loads(data)
-    except (ValueError, UnicodeDecodeError) as exc:
-        raise CoreError("Invalid GitHub release metadata") from exc
-    if not isinstance(releases, list):
-        raise CoreError("GitHub API did not return a release list")
+    """Find the latest usable pre-release using bounded, paginated API requests.
+
+    The GitHub /releases API returns enormous JSON documents because every
+    release embeds all platform assets. Fetch ten releases per page rather than
+    treating ordinary GitHub responses as an error. Continue through a bounded
+    number of pages when the first ones contain only stable/unusable releases.
+    Never silently substitute an unverified or stale cached executable.
+    """
+    asset_name = linux_archive()
+    releases = []
+    for page in range(1, MAX_RELEASE_PAGES + 1):
+        request = urllib.request.Request(f"{API}&page={page}", headers={
+            "Accept": "application/vnd.github+json",
+            "User-Agent": "xray-finalmask-scanner-prerelease-manager",
+            "X-GitHub-Api-Version": "2022-11-28",
+        })
+        try:
+            with urllib.request.urlopen(request, timeout=timeout) as response:
+                data = response.read(MAX_METADATA_BYTES + 1)
+        except urllib.error.HTTPError as exc:
+            if exc.code in (403, 429):
+                raise CoreError("GitHub API rate limited or access denied; retry later") from exc
+            raise CoreError(f"GitHub release API HTTP error {exc.code}") from exc
+        except (OSError, urllib.error.URLError) as exc:
+            raise CoreError("Unable to check official Xray pre-releases; check network or GitHub API limits") from exc
+        if len(data) > MAX_METADATA_BYTES:
+            raise CoreError("Unexpectedly large GitHub release metadata page")
+        try:
+            batch = json.loads(data)
+        except (ValueError, UnicodeDecodeError) as exc:
+            raise CoreError("Invalid GitHub release metadata") from exc
+        if not isinstance(batch, list):
+            raise CoreError("GitHub API did not return a release list")
+        releases.extend(batch)
+        try:
+            select_latest(releases, asset_name)
+            break
+        except CoreError:
+            if len(batch) < PAGE_SIZE:
+                break
     return releases
 
 

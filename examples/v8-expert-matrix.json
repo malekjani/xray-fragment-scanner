@@ -1,0 +1,41 @@
+{
+  "mode": "expert",
+  "addresses": ["original"],
+  "fingerprints": ["original", "firefox", "chrome"],
+  "ech_values": ["original"],
+  "mask_profiles": [
+    "original",
+    {
+      "name": "tlshello-6-98-1",
+      "layers": [
+        {"type": "fragment", "settings": {
+          "packets": "tlshello", "lengths": ["6", "98", "1"],
+          "delays": ["0"], "maxSplit": "0"
+        }}
+      ]
+    },
+    {
+      "name": "header-custom-then-fragment",
+      "layers": [
+        {"type": "header-custom", "settings": {
+          "clients": [[{"delay": 0, "type": "str", "packet": "GET / HTTP/1.1\r\nHost: example.com\r\n\r\n"}]],
+          "servers": [], "errors": []
+        }},
+        {"type": "fragment", "settings": {
+          "packets": "tlshello", "lengths": ["6", "98", "1"],
+          "delays": ["1-3"], "maxSplit": "3"
+        }}
+      ]
+    }
+  ],
+  "stage1_requests": 5,
+  "stage2_requests": 25,
+  "verify_top": 5,
+  "baseline_every": 5,
+  "min_success": 0.90,
+  "timeout": 8,
+  "max_candidates": 60,
+  "seed": 2026,
+  "targets": ["https://www.gstatic.com/generate_204", "https://www.cloudflare.com/cdn-cgi/trace"],
+  "throughput_url": null
+}
