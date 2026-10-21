@@ -44,13 +44,6 @@
 			<string>Shatel Mobile Cellular Data</string>
 			<key>PayloadDescription</key>
 			<string>Sets the shatelmobile cellular data APN to allow IPv4 and IPv6. IPv6 availability is unverified by Shatel Mobile.</string>
-			<key>AttachAPN</key>
-			<dict>
-				<key>Name</key>
-				<string>shatelmobile</string>
-				<key>AllowedProtocolMask</key>
-				<integer>3</integer>
-			</dict>
 		</dict>
 	</array>
 </dict>

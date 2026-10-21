@@ -1,31 +1,39 @@
-# پروفایل IPv4 و IPv6 آیفون برای اپراتورهای ایران
+# پروفایل IPv4/IPv6 آیفون برای اپراتورهای ایرانی
 
-**MCI · MTN Irancell · RighTel · Shatel Mobile**
+![پوستر آموزشی نصب IPv6 در آیفون](POSTER.svg)
 
-این مخزن شامل چهار فایل تنظیم APN با فرمت `.mobileconfig` و مقدار `AllowedProtocolMask = 3` (اجازه IPv4 و IPv6) است. فایل‌ها ساخته‌شده توسط کاربر هستند، **رسمی یا امضاشده از طرف اپراتورها نیستند**. دریافت IPv6 به شبکه سیم‌کارت و پشتیبانی اپراتور بستگی دارد و تضمین نشده است. پشتیبانی IPv6 شاتل موبایل به‌صورت رسمی برای همه مشترکان احراز نشده است.
+**این مخزن حاوی فایل‌های غیررسمی `.mobileconfig` برای پیکربندی APN در آیفون است.** پوستر بالا بازسازی برداری همان طرح چهاراپراتوری با شش مرحله نصب است. لوگوها و صفحه‌های آیفون در SVG به‌صورت شماتیک بازسازی شده‌اند، نه تصویر رسمی Apple/اپراتورها.
 
-![پوستر تصویری آموزش نصب IPv6 روی آیفون](POSTER.svg)
+## دانلود چهار پروفایل
 
-## دریافت پروفایل
-
-| اپراتور | APN | دانلود مستقیم |
+| اپراتور | APN رسمی | فایل پروفایل |
 |---|---|---|
-| همراه اول (MCI) | `mcinet` | [دریافت mobileconfig](https://raw.githubusercontent.com/malekjani/xray-fragment-scanner/iran-ios-ipv6/profiles/MCI_Dual_Stack_IPv4_IPv6.mobileconfig) |
-| ایرانسل | `mtnirancell` | [دریافت mobileconfig](https://raw.githubusercontent.com/malekjani/xray-fragment-scanner/iran-ios-ipv6/profiles/Irancell_Dual_Stack_IPv4_IPv6.mobileconfig) |
-| رایتل | `RighTel` | [دریافت mobileconfig](https://raw.githubusercontent.com/malekjani/xray-fragment-scanner/iran-ios-ipv6/profiles/RighTel_IPv4_IPv6_Dual_Stack.mobileconfig) |
-| شاتل موبایل | `shatelmobile` | [دریافت mobileconfig](https://raw.githubusercontent.com/malekjani/xray-fragment-scanner/iran-ios-ipv6/profiles/ShatelMobile_IPv4_IPv6_Dual_Stack.mobileconfig) |
+| همراه اول (MCI) | `mcinet` | [دانلود مستقیم](https://raw.githubusercontent.com/malekjani/xray-fragment-scanner/iran-ios-ipv6/profiles/MCI_Dual_Stack_IPv4_IPv6.mobileconfig) |
+| ایرانسل (MTN Irancell) | `mtnirancell` | [دانلود مستقیم](https://raw.githubusercontent.com/malekjani/xray-fragment-scanner/iran-ios-ipv6/profiles/Irancell_Dual_Stack_IPv4_IPv6.mobileconfig) |
+| رایتل (RighTel) | `RighTel` | [دانلود مستقیم](https://raw.githubusercontent.com/malekjani/xray-fragment-scanner/iran-ios-ipv6/profiles/RighTel_IPv4_IPv6_Dual_Stack.mobileconfig) |
+| شاتل موبایل (Shatel Mobile) | `shatelmobile` | [دانلود مستقیم](https://raw.githubusercontent.com/malekjani/xray-fragment-scanner/iran-ios-ipv6/profiles/ShatelMobile_IPv4_IPv6_Dual_Stack.mobileconfig) |
 
-> لینک‌های مستقیم GitHub Raw ممکن است به‌جای شروع فوری نصب، فایل را دانلود کنند. این طبیعی است؛ فایل را باز کنید یا از Apple Mail برای دریافت پروفایل استفاده کنید. Safari اجباری نیست.
+**این‌ها پروفایل رسمی اپراتورها نیستند و امضای دیجیتال ندارند.** مقادیر APN از وب‌سایت‌های رسمی گرفته شده‌اند. مقدار `AllowedProtocolMask=3` مطابق مستندات Apple استفاده از هر دو پروتکل IPv4 و IPv6 را **مجاز** می‌کند؛ اتصال IPv6 را تضمین نمی‌کند. پشتیبانی واقعی به اپراتور، SIM، پوشش و تنظیمات iOS بستگی دارد. برای شاتل موبایل تأیید مستقلی از ارائه عمومی IPv6 در تمام سیم‌کارت‌ها نداریم.
 
-## نصب روی آیفون
-۱. پروفایل مربوط به سیم‌کارت را از منبع معتبر دریافت کنید. ۲. در صورت نمایش اعلان دانلود پروفایل، روی **Allow** بزنید. ۳. وارد **Settings → Profile Downloaded** شوید، جزئیات پروفایل را ببینید و **Install** را بزنید. ۴. در صورت نبود گزینه، **Settings → General → VPN & Device Management** را بررسی کنید. ۵. با رمز دستگاه نصب را تأیید کنید. ۶. برای تست، Wi-Fi و VPN را خاموش کرده و `https://test-ipv6.com/` را باز کنید.
+## نصب، تست و حذف
+راهنمای کامل فارسی: **[INSTALL_FA.md](INSTALL_FA.md)**
 
-**راهنمای کامل:** [INSTALL_FA.md](INSTALL_FA.md) · **پوستر مستقل:** [POSTER.svg](POSTER.svg).
+در Safari یا Apple Mail فایل مربوط به اپراتور خود را دریافت کنید؛ در صورت نمایش پیام دانلود، `Allow` را بزنید. سپس **Settings → Profile Downloaded → Install**؛ یا **Settings → General → VPN & Device Management**. پس از نصب Wi-Fi و VPN را خاموش کنید، اتصال دیتای همان سیم‌کارت را روشن کنید و با [test-ipv6.com](https://test-ipv6.com/) آزمایش کنید.
 
-## نکات مهم
-- مقدار `AllowedProtocolMask=3` فقط IPv4 و IPv6 را مجاز می‌کند؛ لزوماً IPv6 عمومی اختصاص نمی‌دهد.
-- تنظیمات اپراتور، محدودیت‌های iOS یا مدیریت سازمانی می‌تواند مانع اعمال تنظیمات شود.
-- قبل از نصب، محتویات پروفایل را بررسی کنید. این فایل‌ها امضای دیجیتال ندارند.
-- اگر اینترنت مختل شد، پروفایل را از **VPN & Device Management** حذف کنید.
-- مرجع اپل: [Install a configuration profile on your iPhone or iPad](https://support.apple.com/en-us/102400).
-- پوستر شماتیک است و تصویر زنده محیط سیستم‌عامل محسوب نمی‌شود.
+نکته: مرورگر GitHub Raw ممکن است صرفاً فایل را دانلود کند و پنجره نصب ندهد. Safari تنها راه دریافت فایل نیست. تنها **یک پروفایل دانلودشده** هم‌زمان آماده نصب است و طبق Apple اگر ظرف **۸ دقیقه** نصب نشود از فهرست نصب حذف می‌شود. قبل از نصب مشخصات پروفایل را مطالعه کنید و از پروفایل ناشناس استفاده نکنید.
+
+## منابع معتبر و وضعیت تأیید
+- [Apple — Cellular payload](https://developer.apple.com/documentation/devicemanagement/cellular) و [APNs Item / AllowedProtocolMask](https://developer.apple.com/documentation/devicemanagement/cellular/apnsitem)
+- [Apple — نصب پروفایل](https://support.apple.com/en-us/102400)
+- [همراه اول — تنظیمات اینترنت](https://mci.ir/internet-settings)
+- [ایرانسل — تنظیمات APN](https://irancell.ir/p/292429)
+- [رایتل — راهنمای IPv6](https://www.rightel.ir/en/p/1516/ipv6-settings-help)
+- [شاتل موبایل — راهنمای iOS](https://shatelmobile.ir/setting/راهنمای-ios/)
+
+### وضعیت اعتبارسنجی
+- بررسی انجام‌شده: ساختار XML/Plist، نام APN هر چهار اپراتور، کلیدهای `com.apple.cellular`، مقدار `AllowedProtocolMask=3` و عدم وجود VPN/MDM/گواهی در پروفایل‌ها.
+- اصلاح ایمنی: بخش غیرضروری `AttachAPN` از پروفایل شاتل حذف شد تا APN پیش‌فرض ثبت‌شدن در شبکه تغییر نکند.
+- بررسی انجام‌نشده: نصب و اعمال روی آیفون واقعی، دریافت آدرس IPv6 از شبکه هر اپراتور، سازگاری با همه نسخه‌های iOS و کنترل‌گر اپراتور.
+- اگر اینترنت بعد از نصب مختل شد، پروفایل را از **Settings → General → VPN & Device Management** حذف کنید.
+
+**توصیه:** APN اشتباه می‌تواند اینترنت موبایل را قطع کند. استفاده و تست با مسئولیت کاربر و با بررسی تنظیمات سیم‌کارت انجام شود.

@@ -1,140 +1,116 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1580" viewBox="0 0 1080 1580">
-<defs><linearGradient id="header" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#07376c"/><stop offset="1" stop-color="#0055b8"/></linearGradient>
-<linearGradient id="panel" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#f0f6ff"/></linearGradient>
-<filter id="shadow"><feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#172d44" flood-opacity=".13"/></filter>
-<style>text{font-family:Tahoma,'DejaVu Sans',Arial,sans-serif} .fa{direction:rtl;unicode-bidi:plaintext} .small{fill:#34455a;font-size:20px} .dark{fill:#092e58}</style></defs>
-<rect width="1080" height="1580" fill="#eef6ff"/>
-<rect x="12" y="12" width="1056" height="128" rx="22" fill="url(#header)"/>
-<text x="540" y="74" font-size="47" text-anchor="middle" fill="white" font-weight="bold" class="fa">آموزش نصب پروفایل IPv6 در آیفون</text>
-<text x="540" y="115" font-size="24" text-anchor="middle" fill="#e1f0ff" class="fa">همراه اول، ایرانسل، رایتل و شاتل موبایل</text>
-<rect x="12" y="152" width="256" height="226" rx="18" fill="#e5f5ff" filter="url(#shadow)"/>
-<circle cx="140" cy="206" r="38" fill="#0b9ddd" />
-<text x="140" y="217" fill="#fff" font-size="25" font-weight="bold" text-anchor="middle">MCI</text>
-<text x="140" y="267" class="fa dark" font-size="28" font-weight="bold" text-anchor="middle">همراه اول</text>
-<text x="140" y="303" fill="#17314e" font-size="19" text-anchor="middle">APN: mcinet</text>
-<text x="140" y="339" fill="#0a7554" font-size="20" font-weight="bold" text-anchor="middle">IPv4 + IPv6</text>
-<rect x="280" y="152" width="256" height="226" rx="18" fill="#fff6d0" filter="url(#shadow)"/>
-<circle cx="408" cy="206" r="38" fill="#d4a100" />
-<text x="408" y="217" fill="#fff" font-size="25" font-weight="bold" text-anchor="middle">MTN</text>
-<text x="408" y="267" class="fa dark" font-size="28" font-weight="bold" text-anchor="middle">ایرانسل</text>
-<text x="408" y="303" fill="#17314e" font-size="19" text-anchor="middle">APN: mtnirancell</text>
-<text x="408" y="339" fill="#0a7554" font-size="20" font-weight="bold" text-anchor="middle">IPv4 + IPv6</text>
-<rect x="548" y="152" width="256" height="226" rx="18" fill="#ffe5f2" filter="url(#shadow)"/>
-<circle cx="676" cy="206" r="38" fill="#a41878" />
-<text x="676" y="217" fill="#fff" font-size="25" font-weight="bold" text-anchor="middle">R</text>
-<text x="676" y="267" class="fa dark" font-size="28" font-weight="bold" text-anchor="middle">رایتل</text>
-<text x="676" y="303" fill="#17314e" font-size="19" text-anchor="middle">APN: RighTel</text>
-<text x="676" y="339" fill="#0a7554" font-size="20" font-weight="bold" text-anchor="middle">IPv4 + IPv6</text>
-<rect x="816" y="152" width="256" height="226" rx="18" fill="#fff0df" filter="url(#shadow)"/>
-<circle cx="944" cy="206" r="38" fill="#f2781c" />
-<text x="944" y="217" fill="#fff" font-size="25" font-weight="bold" text-anchor="middle">S</text>
-<text x="944" y="267" class="fa dark" font-size="28" font-weight="bold" text-anchor="middle">شاتل موبایل</text>
-<text x="944" y="303" fill="#17314e" font-size="19" text-anchor="middle">APN: shatelmobile</text>
-<text x="944" y="339" fill="#0a7554" font-size="20" font-weight="bold" text-anchor="middle">IPv4 + IPv6</text>
-<rect x="12" y="394" width="1056" height="53" rx="15" fill="#c5e2ff"/>
-<text x="540" y="429" class="fa dark" font-size="28" font-weight="bold" text-anchor="middle">شش مرحله نصب پروفایل در iOS</text>
-<rect x="12" y="465" width="344" height="368" rx="22" fill="url(#panel)" filter="url(#shadow)"/>
-<circle cx="314" cy="500" r="25" fill="#0861bd"/>
-<text x="314" y="509" text-anchor="middle" fill="white" font-size="26" font-weight="bold">۱</text>
-<text x="178" y="509" text-anchor="middle" class="fa dark" font-size="23" font-weight="bold">دریافت فایل مناسب</text>
-<text x="184" y="544" text-anchor="middle" class="fa small">پروفایل اپراتور خود را باز کنید</text>
-<rect x="90" y="564" width="190" height="251" rx="29" fill="#171b25"/>
-<rect x="99" y="578" width="172" height="227" rx="21" fill="#f8fbff"/>
-<rect x="150" y="583" width="70" height="11" rx="6" fill="#171b25"/>
-<text x="113" y="598" fill="#343b47" font-size="13">9:41</text>
-<rect x="112" y="627" width="147" height="50" rx="11" fill="#e0efff" stroke="#b9d8ff"/>
-<text x="185" y="658" fill="#0a3e84" text-anchor="middle" font-size="14" font-weight="bold">Download .mobileconfig</text>
-<rect x="117" y="697" width="136" height="13" rx="6" fill="#d8e5f3"/>
-<rect x="117" y="721" width="122" height="13" rx="6" fill="#d8e5f3"/>
-<rect x="117" y="745" width="128" height="13" rx="6" fill="#d8e5f3"/>
-<circle cx="185" cy="794" r="4" fill="#afbbc9"/>
-<rect x="368" y="465" width="344" height="368" rx="22" fill="url(#panel)" filter="url(#shadow)"/>
-<circle cx="670" cy="500" r="25" fill="#0861bd"/>
-<text x="670" y="509" text-anchor="middle" fill="white" font-size="26" font-weight="bold">۲</text>
-<text x="534" y="509" text-anchor="middle" class="fa dark" font-size="23" font-weight="bold">تأیید دریافت</text>
-<text x="540" y="544" text-anchor="middle" class="fa small">در صورت درخواست، Allow را بزنید</text>
-<rect x="446" y="564" width="190" height="251" rx="29" fill="#171b25"/>
-<rect x="455" y="578" width="172" height="227" rx="21" fill="#f8fbff"/>
-<rect x="506" y="583" width="70" height="11" rx="6" fill="#171b25"/>
-<text x="469" y="598" fill="#343b47" font-size="13">9:41</text>
-<rect x="468" y="627" width="147" height="50" rx="11" fill="#e0efff" stroke="#b9d8ff"/>
-<text x="541" y="658" fill="#0a3e84" text-anchor="middle" font-size="14" font-weight="bold">Allow profile download</text>
-<rect x="473" y="697" width="136" height="13" rx="6" fill="#d8e5f3"/>
-<rect x="473" y="721" width="122" height="13" rx="6" fill="#d8e5f3"/>
-<rect x="473" y="745" width="128" height="13" rx="6" fill="#d8e5f3"/>
-<circle cx="541" cy="794" r="4" fill="#afbbc9"/>
-<rect x="724" y="465" width="344" height="368" rx="22" fill="url(#panel)" filter="url(#shadow)"/>
-<circle cx="1026" cy="500" r="25" fill="#0861bd"/>
-<text x="1026" y="509" text-anchor="middle" fill="white" font-size="26" font-weight="bold">۳</text>
-<text x="890" y="509" text-anchor="middle" class="fa dark" font-size="23" font-weight="bold">ورود به تنظیمات</text>
-<text x="896" y="544" text-anchor="middle" class="fa small">Settings → Profile Downloaded</text>
-<rect x="802" y="564" width="190" height="251" rx="29" fill="#171b25"/>
-<rect x="811" y="578" width="172" height="227" rx="21" fill="#f8fbff"/>
-<rect x="862" y="583" width="70" height="11" rx="6" fill="#171b25"/>
-<text x="825" y="598" fill="#343b47" font-size="13">9:41</text>
-<rect x="824" y="627" width="147" height="50" rx="11" fill="#e0efff" stroke="#b9d8ff"/>
-<text x="897" y="658" fill="#0a3e84" text-anchor="middle" font-size="14" font-weight="bold">Profile Downloaded</text>
-<rect x="829" y="697" width="136" height="13" rx="6" fill="#d8e5f3"/>
-<rect x="829" y="721" width="122" height="13" rx="6" fill="#d8e5f3"/>
-<rect x="829" y="745" width="128" height="13" rx="6" fill="#d8e5f3"/>
-<circle cx="897" cy="794" r="4" fill="#afbbc9"/>
-<rect x="12" y="850" width="344" height="368" rx="22" fill="url(#panel)" filter="url(#shadow)"/>
-<circle cx="314" cy="885" r="25" fill="#0861bd"/>
-<text x="314" y="894" text-anchor="middle" fill="white" font-size="26" font-weight="bold">۴</text>
-<text x="178" y="894" text-anchor="middle" class="fa dark" font-size="23" font-weight="bold">بررسی و نصب</text>
-<text x="184" y="929" text-anchor="middle" class="fa small">جزئیات را ببینید؛ Install را بزنید</text>
-<rect x="90" y="949" width="190" height="251" rx="29" fill="#171b25"/>
-<rect x="99" y="963" width="172" height="227" rx="21" fill="#f8fbff"/>
-<rect x="150" y="968" width="70" height="11" rx="6" fill="#171b25"/>
-<text x="113" y="983" fill="#343b47" font-size="13">9:41</text>
-<rect x="112" y="1012" width="147" height="50" rx="11" fill="#e0efff" stroke="#b9d8ff"/>
-<text x="185" y="1043" fill="#0a3e84" text-anchor="middle" font-size="14" font-weight="bold">Install Profile</text>
-<rect x="117" y="1082" width="136" height="13" rx="6" fill="#d8e5f3"/>
-<rect x="117" y="1106" width="122" height="13" rx="6" fill="#d8e5f3"/>
-<rect x="117" y="1130" width="128" height="13" rx="6" fill="#d8e5f3"/>
-<circle cx="185" cy="1179" r="4" fill="#afbbc9"/>
-<rect x="368" y="850" width="344" height="368" rx="22" fill="url(#panel)" filter="url(#shadow)"/>
-<circle cx="670" cy="885" r="25" fill="#0861bd"/>
-<text x="670" y="894" text-anchor="middle" fill="white" font-size="26" font-weight="bold">۵</text>
-<text x="534" y="894" text-anchor="middle" class="fa dark" font-size="23" font-weight="bold">تأیید با رمز</text>
-<text x="540" y="929" text-anchor="middle" class="fa small">رمز آیفون و نصب را تأیید کنید</text>
-<rect x="446" y="949" width="190" height="251" rx="29" fill="#171b25"/>
-<rect x="455" y="963" width="172" height="227" rx="21" fill="#f8fbff"/>
-<rect x="506" y="968" width="70" height="11" rx="6" fill="#171b25"/>
-<text x="469" y="983" fill="#343b47" font-size="13">9:41</text>
-<rect x="468" y="1012" width="147" height="50" rx="11" fill="#e0efff" stroke="#3c77d0"/>
-<text x="541" y="1043" fill="#0a3e84" text-anchor="middle" font-size="14" font-weight="bold">Enter Passcode</text>
-<rect x="473" y="1082" width="136" height="13" rx="6" fill="#d8e5f3"/>
-<rect x="473" y="1106" width="122" height="13" rx="6" fill="#d8e5f3"/>
-<rect x="473" y="1130" width="128" height="13" rx="6" fill="#d8e5f3"/>
-<circle cx="541" cy="1179" r="4" fill="#afbbc9"/>
-<rect x="724" y="850" width="344" height="368" rx="22" fill="url(#panel)" filter="url(#shadow)"/>
-<circle cx="1026" cy="885" r="25" fill="#0861bd"/>
-<text x="1026" y="894" text-anchor="middle" fill="white" font-size="26" font-weight="bold">۶</text>
-<text x="890" y="894" text-anchor="middle" class="fa dark" font-size="23" font-weight="bold">آزمایش IPv6</text>
-<text x="896" y="929" text-anchor="middle" class="fa small">Wi-Fi و VPN خاموش، سپس تست کنید</text>
-<rect x="802" y="949" width="190" height="251" rx="29" fill="#171b25"/>
-<rect x="811" y="963" width="172" height="227" rx="21" fill="#f8fbff"/>
-<rect x="862" y="968" width="70" height="11" rx="6" fill="#171b25"/>
-<text x="825" y="983" fill="#343b47" font-size="13">9:41</text>
-<rect x="824" y="1012" width="147" height="50" rx="11" fill="#e6f7f1" stroke="#b9d8ff"/>
-<text x="897" y="1043" fill="#0a3e84" text-anchor="middle" font-size="14" font-weight="bold">test-ipv6.com</text>
-<rect x="829" y="1082" width="136" height="13" rx="6" fill="#d8e5f3"/>
-<rect x="829" y="1106" width="122" height="13" rx="6" fill="#d8e5f3"/>
-<rect x="829" y="1130" width="128" height="13" rx="6" fill="#d8e5f3"/>
-<circle cx="897" cy="1179" r="4" fill="#afbbc9"/>
-<rect x="12" y="1246" width="520" height="181" rx="21" fill="#daf9ef"/>
-<text x="272" y="1290" text-anchor="middle" font-size="28" font-weight="bold" fill="#08734e" class="fa">تست اتصال پس از نصب</text>
-<text x="272" y="1331" text-anchor="middle" font-size="24" fill="#144f71">test-ipv6.com</text>
-<text x="272" y="1369" text-anchor="middle" font-size="23" fill="#144f71">api6.ipify.org</text>
-<text x="272" y="1406" text-anchor="middle" font-size="19" fill="#2a5869" class="fa">Wi-Fi و VPN را خاموش کنید</text>
-<rect x="544" y="1246" width="524" height="181" rx="21" fill="#fff0d6"/>
-<text x="805" y="1290" text-anchor="middle" font-size="28" font-weight="bold" fill="#a26000" class="fa">نکات ضروری</text>
-<text x="805" y="1330" text-anchor="middle" font-size="19" fill="#553e20" class="fa">نصب پروفایل، دریافت IPv6 را تضمین نمی‌کند</text>
-<text x="805" y="1368" text-anchor="middle" font-size="19" fill="#553e20" class="fa">پشتیبانی واقعی به شبکه اپراتور وابسته است</text>
-<text x="805" y="1406" text-anchor="middle" font-size="19" fill="#553e20" class="fa">پروفایل‌های حاضر غیررسمی و بدون امضا هستند</text>
-<rect x="12" y="1441" width="1056" height="116" rx="20" fill="#fff" stroke="#bdd9f4"/>
-<text x="540" y="1480" text-anchor="middle" class="fa dark" font-size="23" font-weight="bold">اگر Profile Downloaded را نمی‌بینید:</text>
-<text x="540" y="1517" text-anchor="middle" font-size="23" fill="#0753ad">Settings → General → VPN &amp; Device Management</text>
-<text x="540" y="1544" text-anchor="middle" font-size="14" fill="#657888" class="fa">تصاویر شماتیک هستند؛ جهت نصب، پروفایل را در Settings بررسی کنید</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1122" height="1402" viewBox="0 0 1122 1402" role="img" aria-labelledby="ttl desc">
+<title id="ttl">آموزش نصب پروفایل IPv6 در آیفون برای همراه اول ایرانسل رایتل و شاتل موبایل</title>
+<desc id="desc">راهنمای تصویری شش‌مرحله‌ای نصب پروفایل‌های APN IPv4 و IPv6 روی آیفون به همراه روش تست و نکات مهم. این تصویر بازسازی برداری از پوستر تأییدشده است.</desc>
+<defs><linearGradient id="blue" x2="1" y2=".2"><stop stop-color="#07346f"/><stop offset="1" stop-color="#00549d"/></linearGradient>
+<linearGradient id="card" x2="0" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#f9fcff"/></linearGradient>
+<linearGradient id="ice" x2="0" y2="1"><stop stop-color="#c6e7ff"/><stop offset="1" stop-color="#ecf7ff"/></linearGradient>
+<filter id="cardshadow"><feDropShadow dx="0" dy="2" stdDeviation="2.3" flood-color="#9db8d5" flood-opacity=".23"/></filter>
+<clipPath id="screenclip"><rect x="0" y="0" width="305" height="273" rx="16"/></clipPath>
+</defs>
+<rect width="1122" height="1402" fill="#f2f8ff"/>
+<rect x="12" y="8" width="1098" height="128" rx="21" fill="url(#blue)" stroke="none" />
+<path d="M14 72 Q190 157 445 132 Q780 115 1110 52 L1110 125 Q773 158 445 150 Q130 150 14 110Z" fill="#1160b4" opacity=".25"/>
+<g transform="translate(96 24) rotate(-8 30 49)" fill="none" stroke="#fff" stroke-width="7" stroke-linejoin="round"><rect x="5" y="3" width="58" height="93" rx="10"/><path d="M24 15 H45"/></g>
+<text x="611" y="72" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="50" font-weight="800" fill="white" direction="rtl" unicode-bidi="plaintext" >آموزش نصب پروفایل</text>
+<text x="420" y="72" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="53" font-weight="900" fill="#ffda10"  >IPv6</text>
+<text x="225" y="72" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="50" font-weight="800" fill="white" direction="rtl" unicode-bidi="plaintext" >در آیفون</text>
+<text x="566" y="119" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="27" font-weight="700" fill="#eef6ff" direction="rtl" unicode-bidi="plaintext" >ویژه همراه اول، ایرانسل، رایتل و شاتل موبایل</text>
+<rect x="12" y="145" width="267" height="212" rx="20" fill="#e5f4ff" stroke="none" />
+<path d="M108 194 C127 154 183 148 182 167 C159 161 128 181 108 194Z" fill="#ffa500"/>
+<path d="M107 197 C137 203 167 187 185 173 C161 205 139 214 107 197Z" fill="#0aa9d8"/>
+<text x="145" y="223" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="19" font-weight="700" fill="#203a50" direction="rtl" unicode-bidi="plaintext" >همراه اول</text>
+<text x="145" y="270" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="26" font-weight="800" fill="#0c3275" direction="rtl" unicode-bidi="plaintext" >همراه اول</text>
+<rect x="26" y="285" width="239" height="34" rx="12" fill="#d0e9ff" stroke="none" />
+<text x="79" y="310" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="20" font-weight="800" fill="#0b2255"  >APN:</text>
+<text x="176" y="310" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="20" font-weight="800" fill="#092b76"  >mcinet</text>
+<text x="145" y="345" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="22" font-weight="900" fill="#0d2f73"  >IPv4 + IPv6</text>
+<rect x="290" y="145" width="267" height="212" rx="20" fill="#fff7d7" stroke="none" />
+<ellipse cx="423" cy="191" rx="68" ry="38" fill="#ffd500"/>
+<text x="423" y="193" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="31" font-weight="900" fill="#113b90" direction="rtl" unicode-bidi="plaintext" >ایرانسل</text>
+<text x="423" y="219" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="18" font-weight="800" fill="#123b91"  >MTN</text>
+<text x="423" y="270" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="26" font-weight="800" fill="#0c3275" direction="rtl" unicode-bidi="plaintext" >ایرانسل</text>
+<rect x="304" y="285" width="239" height="34" rx="12" fill="#ffedb6" stroke="none" />
+<text x="357" y="310" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="20" font-weight="800" fill="#0b2255"  >APN:</text>
+<text x="454" y="310" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="20" font-weight="800" fill="#092b76"  >mtnirancell</text>
+<text x="423" y="345" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="22" font-weight="900" fill="#0d2f73"  >IPv4 + IPv6</text>
+<rect x="568" y="145" width="267" height="212" rx="20" fill="#ffebf6" stroke="none" />
+<circle cx="666" cy="188" r="38" fill="#a20d79"/><circle cx="666" cy="188" r="26" fill="#ffeff7"/><circle cx="666" cy="188" r="20" fill="none" stroke="#f4b5d4" stroke-width="2"/>
+<text x="747" y="190" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="25" font-weight="800" fill="#313139" direction="rtl" unicode-bidi="plaintext" >رایتل</text>
+<text x="747" y="215" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="17" font-weight="700" fill="#44414a"  >RighTel</text>
+<text x="701" y="270" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="26" font-weight="800" fill="#0c3275" direction="rtl" unicode-bidi="plaintext" >رایتل</text>
+<rect x="582" y="285" width="239" height="34" rx="12" fill="#fad7e9" stroke="none" />
+<text x="635" y="310" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="20" font-weight="800" fill="#0b2255"  >APN:</text>
+<text x="732" y="310" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="20" font-weight="800" fill="#092b76"  >RighTel</text>
+<text x="701" y="345" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="22" font-weight="900" fill="#0d2f73"  >IPv4 + IPv6</text>
+<rect x="846" y="145" width="267" height="212" rx="20" fill="#fff0e5" stroke="none" />
+<path d="M906 222 L953 149 L995 221 L977 221 L953 185 L928 222Z" fill="#083b89"/>
+<circle cx="953" cy="209" r="12" fill="#fc8721"/>
+<text x="1027" y="185" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="24" font-weight="800" fill="#003d88" direction="rtl" unicode-bidi="plaintext" >شاتل</text>
+<text x="1027" y="208" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="23" font-weight="800" fill="#003d88" direction="rtl" unicode-bidi="plaintext" >موبایل</text>
+<text x="979" y="270" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="26" font-weight="800" fill="#0c3275" direction="rtl" unicode-bidi="plaintext" >شاتل موبایل</text>
+<rect x="860" y="285" width="239" height="34" rx="12" fill="#ffdbc5" stroke="none" />
+<text x="913" y="310" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="20" font-weight="800" fill="#0b2255"  >APN:</text>
+<text x="1010" y="310" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="20" font-weight="800" fill="#e94508"  >shatelmobile</text>
+<text x="979" y="345" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="22" font-weight="900" fill="#0d2f73"  >IPv4 + IPv6</text>
+<rect x="12" y="369" width="1098" height="53" rx="19" fill="url(#ice)" stroke="none" />
+<text x="561" y="407" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="30" font-weight="900" fill="#062b6d" direction="rtl" unicode-bidi="plaintext" >مراحل نصب پروفایل در آیفون (تصویری)</text>
+<rect x="12" y="422" width="358" height="360" rx="18" fill="url(#card)" stroke="#dae9f6" stroke-width="1" filter="url(#cardshadow)"/>
+<circle cx="56" cy="460" r="28" fill="#075abb"/><text x="56" y="471" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="35" font-weight="900" fill="white"  >۱</text>
+<text x="210" y="454" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="21" font-weight="800" fill="#063076" direction="rtl" unicode-bidi="plaintext" >فایل پروفایل اپراتور را</text>
+<text x="210" y="482" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="21" font-weight="800" fill="#063076" direction="rtl" unicode-bidi="plaintext" >در Safari باز کنید.</text>
+<g transform="translate(31,497) scale(1.0594059405940595,1.0549019607843138)"><rect x="0" y="0" width="303" height="255" rx="35" fill="#0c0e12" stroke="#62666b" stroke-width="2"/><rect x="9" y="10" width="285" height="235" rx="27" fill="#f9fafc" stroke="none" /><rect x="103" y="11" width="97" height="22" rx="12" fill="#030509" stroke="none" /><text x="39" y="37" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="14" font-weight="700" fill="#0e1c27"  >9:41</text><text x="275" y="37" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="13" font-weight="700" fill="#151923"  >● ▰</text><rect x="19" y="48" width="263" height="37" rx="10" fill="#f1f1f4" stroke="none" /><text x="151" y="73" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="17" font-weight="500" fill="#252627"  >example.com</text><text x="151" y="119" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="24" font-weight="800" fill="#96066c" direction="rtl" unicode-bidi="plaintext" >دانلود پروفایل اپراتور</text><text x="151" y="147" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="19" font-weight="800" fill="#0b3d9a"  >IPv4 / IPv6</text><rect x="105" y="161" width="92" height="69" rx="17" fill="#f8d6ef" stroke="none" /><rect x="125" y="175" width="52" height="46" rx="10" fill="#9b0476" stroke="none" /><text x="151" y="206" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="34" font-weight="900" fill="white"  >↓</text></g>
+<rect x="382" y="422" width="358" height="360" rx="18" fill="url(#card)" stroke="#dae9f6" stroke-width="1" filter="url(#cardshadow)"/>
+<circle cx="426" cy="460" r="28" fill="#075abb"/><text x="426" y="471" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="35" font-weight="900" fill="white"  >۲</text>
+<text x="580" y="454" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="21" font-weight="800" fill="#063076" direction="rtl" unicode-bidi="plaintext" >در صورت نمایش پیام،</text>
+<text x="580" y="482" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="21" font-weight="800" fill="#063076" direction="rtl" unicode-bidi="plaintext" >گزینه Allow را بزنید.</text>
+<g transform="translate(401,497) scale(1.0594059405940595,1.0549019607843138)"><rect x="0" y="0" width="303" height="255" rx="35" fill="#0c0e12" stroke="#62666b" stroke-width="2"/><rect x="9" y="10" width="285" height="235" rx="27" fill="#f9fafc" stroke="none" /><rect x="103" y="11" width="97" height="22" rx="12" fill="#030509" stroke="none" /><text x="39" y="37" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="14" font-weight="700" fill="#0e1c27"  >9:41</text><text x="275" y="37" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="13" font-weight="700" fill="#151923"  >● ▰</text><rect x="12" y="45" width="279" height="185" rx="6" fill="#c4c4c9" stroke="none" /><rect x="25" y="72" width="253" height="133" rx="15" fill="#f7f7fb" stroke="none" /><text x="151" y="106" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="14" font-weight="500" fill="#121521"  >This website is trying to</text><text x="151" y="126" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="14" font-weight="500" fill="#121521"  >download a configuration</text><text x="151" y="146" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="14" font-weight="500" fill="#121521"  >profile. Allow this?</text><text x="110" y="192" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="16" font-weight="500" fill="#007aff"  >Cancel</text><rect x="171" y="167" width="97" height="32" rx="9" fill="none" stroke="#ee1023" stroke-width="3"/><text x="219" y="188" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="17" font-weight="700" fill="#007aff"  >Allow</text></g>
+<rect x="752" y="422" width="358" height="360" rx="18" fill="url(#card)" stroke="#dae9f6" stroke-width="1" filter="url(#cardshadow)"/>
+<circle cx="796" cy="460" r="28" fill="#075abb"/><text x="796" y="471" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="35" font-weight="900" fill="white"  >۳</text>
+<text x="950" y="454" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="21" font-weight="800" fill="#063076" direction="rtl" unicode-bidi="plaintext" >Settings را باز کنید؛ سپس</text>
+<text x="950" y="482" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="21" font-weight="800" fill="#063076" direction="rtl" unicode-bidi="plaintext" >Profile Downloaded را بزنید.</text>
+<g transform="translate(771,497) scale(1.0594059405940595,1.0549019607843138)"><rect x="0" y="0" width="303" height="255" rx="35" fill="#0c0e12" stroke="#62666b" stroke-width="2"/><rect x="9" y="10" width="285" height="235" rx="27" fill="#f9fafc" stroke="none" /><rect x="103" y="11" width="97" height="22" rx="12" fill="#030509" stroke="none" /><text x="39" y="37" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="14" font-weight="700" fill="#0e1c27"  >9:41</text><text x="275" y="37" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="13" font-weight="700" fill="#151923"  >● ▰</text><text x="29" y="81" text-anchor="start" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="26" font-weight="800" fill="#12161b"  >Settings</text><rect x="21" y="94" width="260" height="41" rx="6" fill="#e9edf3" stroke="#ed1929" stroke-width="3.5"/><text x="151" y="120" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="16" font-weight="700" fill="#18202c"  >Profile Downloaded</text><rect x="24" y="142" width="255" height="21" rx="4" fill="#fff" stroke="none" /><rect x="29" y="144" width="17" height="17" rx="5" fill="#ff9900" stroke="none" /><text x="139" y="159" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="14" font-weight="600" fill="#20262d"  >Airplane Mode</text><rect x="24" y="166" width="255" height="21" rx="4" fill="#fff" stroke="none" /><rect x="29" y="168" width="17" height="17" rx="5" fill="#0e83ff" stroke="none" /><text x="139" y="183" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="14" font-weight="600" fill="#20262d"  >Wi-Fi</text><rect x="24" y="190" width="255" height="21" rx="4" fill="#fff" stroke="none" /><rect x="29" y="192" width="17" height="17" rx="5" fill="#0088ff" stroke="none" /><text x="139" y="207" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="14" font-weight="600" fill="#20262d"  >Bluetooth</text><rect x="24" y="214" width="255" height="21" rx="4" fill="#fff" stroke="none" /><rect x="29" y="216" width="17" height="17" rx="5" fill="#19bf73" stroke="none" /><text x="139" y="231" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="14" font-weight="600" fill="#20262d"  >Cellular</text></g>
+<rect x="12" y="792" width="358" height="360" rx="18" fill="url(#card)" stroke="#dae9f6" stroke-width="1" filter="url(#cardshadow)"/>
+<circle cx="56" cy="830" r="28" fill="#075abb"/><text x="56" y="841" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="35" font-weight="900" fill="white"  >۴</text>
+<text x="210" y="824" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="21" font-weight="800" fill="#063076" direction="rtl" unicode-bidi="plaintext" >پروفایل را بررسی کنید</text>
+<text x="210" y="852" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="21" font-weight="800" fill="#063076" direction="rtl" unicode-bidi="plaintext" >و Install را بزنید.</text>
+<g transform="translate(31,867) scale(1.0594059405940595,1.0549019607843138)"><rect x="0" y="0" width="303" height="255" rx="35" fill="#0c0e12" stroke="#62666b" stroke-width="2"/><rect x="9" y="10" width="285" height="235" rx="27" fill="#f9fafc" stroke="none" /><rect x="103" y="11" width="97" height="22" rx="12" fill="#030509" stroke="none" /><text x="39" y="37" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="14" font-weight="700" fill="#0e1c27"  >9:41</text><text x="275" y="37" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="13" font-weight="700" fill="#151923"  >● ▰</text><text x="151" y="61" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="21" font-weight="800" fill="#111722"  >Install Profile</text><rect x="206" y="36" width="78" height="39" rx="8" fill="none" stroke="#f21830" stroke-width="3.5"/><text x="246" y="62" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="17" font-weight="700" fill="#007aff"  >Install</text><rect x="25" y="91" width="253" height="36" rx="8" fill="#e4e7ec" stroke="none" /><text x="151" y="116" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="16" font-weight="700" fill="#17212f"  >APN for (Operator Name)</text><text x="151" y="150" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="16" font-weight="500" fill="#6d7583"  >Cellular Settings</text><text x="53" y="183" text-anchor="start" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="14" font-weight="500" fill="#687382"  >Signed by</text><text x="185" y="183" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="15" font-weight="700" fill="#d11b2d"  >Not Signed</text><text x="151" y="208" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="14" font-weight="500" fill="#495363"  >Contains: Cellular Settings</text><text x="151" y="233" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="16" font-weight="600" fill="#0d1a2c"  >More Details</text></g>
+<rect x="382" y="792" width="358" height="360" rx="18" fill="url(#card)" stroke="#dae9f6" stroke-width="1" filter="url(#cardshadow)"/>
+<circle cx="426" cy="830" r="28" fill="#075abb"/><text x="426" y="841" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="35" font-weight="900" fill="white"  >۵</text>
+<text x="580" y="824" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="21" font-weight="800" fill="#063076" direction="rtl" unicode-bidi="plaintext" >رمز آیفون را وارد کنید</text>
+<text x="580" y="852" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="21" font-weight="800" fill="#063076" direction="rtl" unicode-bidi="plaintext" >و نصب را تأیید کنید.</text>
+<g transform="translate(401,867) scale(1.0594059405940595,1.0549019607843138)"><rect x="0" y="0" width="303" height="255" rx="35" fill="#0c0e12" stroke="#62666b" stroke-width="2"/><rect x="9" y="10" width="285" height="235" rx="27" fill="#f9fafc" stroke="none" /><rect x="103" y="11" width="97" height="22" rx="12" fill="#030509" stroke="none" /><text x="39" y="37" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="14" font-weight="700" fill="#0e1c27"  >9:41</text><text x="275" y="37" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="13" font-weight="700" fill="#151923"  >● ▰</text><text x="151" y="70" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="18" font-weight="700" fill="#171b21"  >Enter iPhone Passcode</text><text x="151" y="98" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="14" font-weight="500" fill="#636d79"  >Enter your passcode</text><circle cx="69" cy="127" r="7" fill="none" stroke="#4d586c" stroke-width="2"/><circle cx="102" cy="127" r="7" fill="none" stroke="#4d586c" stroke-width="2"/><circle cx="135" cy="127" r="7" fill="none" stroke="#4d586c" stroke-width="2"/><circle cx="168" cy="127" r="7" fill="none" stroke="#4d586c" stroke-width="2"/><circle cx="201" cy="127" r="7" fill="none" stroke="#4d586c" stroke-width="2"/><circle cx="234" cy="127" r="7" fill="none" stroke="#4d586c" stroke-width="2"/><rect x="54" y="146" width="62" height="22" rx="5" fill="#fff" stroke="none" /><text x="85" y="163" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="16" font-weight="700" fill="#141b24"  >1</text><rect x="125" y="146" width="62" height="22" rx="5" fill="#fff" stroke="none" /><text x="156" y="163" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="16" font-weight="700" fill="#141b24"  >2</text><rect x="196" y="146" width="62" height="22" rx="5" fill="#fff" stroke="none" /><text x="227" y="163" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="16" font-weight="700" fill="#141b24"  >3</text><rect x="54" y="172" width="62" height="22" rx="5" fill="#fff" stroke="none" /><text x="85" y="189" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="16" font-weight="700" fill="#141b24"  >4</text><rect x="125" y="172" width="62" height="22" rx="5" fill="#fff" stroke="none" /><text x="156" y="189" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="16" font-weight="700" fill="#141b24"  >5</text><rect x="196" y="172" width="62" height="22" rx="5" fill="#fff" stroke="none" /><text x="227" y="189" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="16" font-weight="700" fill="#141b24"  >6</text><rect x="54" y="198" width="62" height="22" rx="5" fill="#fff" stroke="none" /><text x="85" y="215" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="16" font-weight="700" fill="#141b24"  >7</text><rect x="125" y="198" width="62" height="22" rx="5" fill="#fff" stroke="none" /><text x="156" y="215" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="16" font-weight="700" fill="#141b24"  >8</text><rect x="196" y="198" width="62" height="22" rx="5" fill="#fff" stroke="none" /><text x="227" y="215" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="16" font-weight="700" fill="#141b24"  >9</text></g>
+<rect x="752" y="792" width="358" height="360" rx="18" fill="url(#card)" stroke="#dae9f6" stroke-width="1" filter="url(#cardshadow)"/>
+<circle cx="796" cy="830" r="28" fill="#075abb"/><text x="796" y="841" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="35" font-weight="900" fill="white"  >۶</text>
+<text x="950" y="824" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="21" font-weight="800" fill="#063076" direction="rtl" unicode-bidi="plaintext" >Wi-Fi و VPN را خاموش کنید</text>
+<text x="950" y="852" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="21" font-weight="800" fill="#063076" direction="rtl" unicode-bidi="plaintext" >و IPv6 را آزمایش کنید.</text>
+<g transform="translate(771,867) scale(1.0594059405940595,1.0549019607843138)"><rect x="0" y="0" width="303" height="255" rx="35" fill="#0c0e12" stroke="#62666b" stroke-width="2"/><rect x="9" y="10" width="285" height="235" rx="27" fill="#f9fafc" stroke="none" /><rect x="103" y="11" width="97" height="22" rx="12" fill="#030509" stroke="none" /><text x="39" y="37" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="14" font-weight="700" fill="#0e1c27"  >9:41</text><text x="275" y="37" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="13" font-weight="700" fill="#151923"  >● ▰</text><text x="151" y="65" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="22" font-weight="800" fill="#161920"  >Settings</text><rect x="24" y="84" width="255" height="47" rx="9" fill="#eff2f8" stroke="none" /><rect x="33" y="90" width="26" height="28" rx="6" fill="#0b80ef" stroke="none" /><text x="119" y="112" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="18" font-weight="600" fill="#1b2433"  >Wi-Fi</text><rect x="223" y="94" width="48" height="23" rx="14" fill="#d7dbe2" stroke="none" /><circle cx="238" cy="106" r="10" fill="white"/><rect x="24" y="137" width="255" height="40" rx="9" fill="#eff2f8" stroke="none" /><rect x="33" y="143" width="26" height="26" rx="6" fill="#196df3" stroke="none" /><text x="114" y="163" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="17" font-weight="600" fill="#202736"  >VPN</text><rect x="223" y="145" width="48" height="23" rx="14" fill="#d7dbe2" stroke="none" /><circle cx="238" cy="157" r="10" fill="white"/><rect x="18" y="182" width="267" height="57" rx="6" fill="white" stroke="none" /><text x="151" y="208" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="18" font-weight="800" fill="#0e3c9e"  >test-ipv6.com</text><text x="151" y="228" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="13" font-weight="600" fill="#1364c0"  >Test your IPv6 connectivity</text></g>
+<rect x="15" y="1163" width="414" height="205" rx="18" fill="#ddfaf1" stroke="none" />
+<rect x="441" y="1163" width="307" height="205" rx="18" fill="#fff4d6" stroke="none" />
+<rect x="760" y="1163" width="347" height="205" rx="18" fill="#ffe5eb" stroke="none" />
+<circle cx="57" cy="1198" r="27" fill="#03bb7d"/><text x="57" y="1209" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="35" font-weight="900" fill="#fff"  >✓</text>
+<text x="222" y="1206" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="27" font-weight="900" fill="#086c42" direction="rtl" unicode-bidi="plaintext" >تست اتصال IPv6</text>
+<text x="218" y="1235" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="18" font-weight="600" fill="#284560" direction="rtl" unicode-bidi="plaintext" >با اینترنت سیم‌کارت و VPN خاموش</text>
+<rect x="30" y="1249" width="382" height="35" rx="8" fill="#f5ffff" stroke="none" />
+<text x="123" y="1273" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="20" font-weight="800" fill="#0060cd"  >test-ipv6.com</text>
+<text x="310" y="1273" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="17" font-weight="700" fill="#123666" direction="rtl" unicode-bidi="plaintext" >بررسی IPv4 و IPv6</text>
+<rect x="30" y="1288" width="382" height="35" rx="8" fill="#f5ffff" stroke="none" />
+<text x="123" y="1312" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="20" font-weight="800" fill="#0060cd"  >api6.ipify.org</text>
+<text x="310" y="1312" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="17" font-weight="700" fill="#123666" direction="rtl" unicode-bidi="plaintext" >نمایش IPv6</text>
+<rect x="30" y="1327" width="382" height="35" rx="8" fill="#f5ffff" stroke="none" />
+<text x="123" y="1351" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="20" font-weight="800" fill="#0060cd"  >api4.ipify.org</text>
+<text x="310" y="1351" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="17" font-weight="700" fill="#123666" direction="rtl" unicode-bidi="plaintext" >نمایش IPv4</text>
+<circle cx="478" cy="1198" r="26" fill="#ffa801"/><text x="478" y="1207" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="35" font-weight="900" fill="white"  >!</text>
+<text x="604" y="1206" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="26" font-weight="900" fill="#e72d20" direction="rtl" unicode-bidi="plaintext" >نکات مهم</text>
+<text x="596" y="1242" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="17" font-weight="600" fill="#374056" direction="rtl" unicode-bidi="plaintext" >فایل‌ها تنظیم APN را تعریف می‌کنند؛</text>
+<text x="596" y="1272" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="17" font-weight="600" fill="#374056" direction="rtl" unicode-bidi="plaintext" >IPv6 به پشتیبانی اپراتور وابسته است.</text>
+<text x="596" y="1302" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="17" font-weight="600" fill="#374056" direction="rtl" unicode-bidi="plaintext" >پروفایل‌ها رسمی یا امضاشده نیستند.</text>
+<text x="596" y="1332" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="17" font-weight="600" fill="#374056" direction="rtl" unicode-bidi="plaintext" >برای نصب، رمز آیفون لازم است.</text>
+<circle cx="797" cy="1198" r="26" fill="#fa3448"/><text x="797" y="1207" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="34" font-weight="900" fill="white"  >?</text>
+<text x="942" y="1205" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="22" font-weight="900" fill="#d71932" direction="rtl" unicode-bidi="plaintext" >اگر پروفایل نمایش داده نشد</text>
+<text x="935" y="1238" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="16" font-weight="600" fill="#394760" direction="rtl" unicode-bidi="plaintext" >از تنظیمات مسیر زیر را باز کنید:</text>
+<rect x="772" y="1253" width="321" height="55" rx="12" fill="#ffd5e4" stroke="none" />
+<text x="934" y="1277" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="18" font-weight="800" fill="#0a3a87"  >Settings → General</text>
+<text x="934" y="1299" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="16" font-weight="800" fill="#0a3a87"  >VPN &amp; Device Management</text>
+<text x="931" y="1334" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="16" font-weight="700" fill="#38466a" direction="rtl" unicode-bidi="plaintext" >پروفایل باید ظرف ۸ دقیقه نصب شود.</text>
+<text x="562" y="1390" text-anchor="middle" font-family="Tahoma, 'Noto Sans Arabic', Arial, sans-serif" font-size="15" font-weight="500" fill="#55718d" direction="rtl" unicode-bidi="plaintext" >بازسازی SVG همان پوستر آموزشی؛ تصاویر محیط آیفون شماتیک‌اند. دریافت IPv6 تضمین‌شده نیست.</text>
 </svg>
