@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1580" viewBox="0 0 1080 1580">
+<defs><linearGradient id="header" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#07376c"/><stop offset="1" stop-color="#0055b8"/></linearGradient>
+<linearGradient id="panel" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#f0f6ff"/></linearGradient>
+<filter id="shadow"><feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#172d44" flood-opacity=".13"/></filter>
+<style>text{font-family:Tahoma,'DejaVu Sans',Arial,sans-serif} .fa{direction:rtl;unicode-bidi:plaintext} .small{fill:#34455a;font-size:20px} .dark{fill:#092e58}</style></defs>
+<rect width="1080" height="1580" fill="#eef6ff"/>
+<rect x="12" y="12" width="1056" height="128" rx="22" fill="url(#header)"/>
+<text x="540" y="74" font-size="47" text-anchor="middle" fill="white" font-weight="bold" class="fa">آموزش نصب پروفایل IPv6 در آیفون</text>
+<text x="540" y="115" font-size="24" text-anchor="middle" fill="#e1f0ff" class="fa">همراه اول، ایرانسل، رایتل و شاتل موبایل</text>
+<rect x="12" y="152" width="256" height="226" rx="18" fill="#e5f5ff" filter="url(#shadow)"/>
+<circle cx="140" cy="206" r="38" fill="#0b9ddd" />
+<text x="140" y="217" fill="#fff" font-size="25" font-weight="bold" text-anchor="middle">MCI</text>
+<text x="140" y="267" class="fa dark" font-size="28" font-weight="bold" text-anchor="middle">همراه اول</text>
+<text x="140" y="303" fill="#17314e" font-size="19" text-anchor="middle">APN: mcinet</text>
+<text x="140" y="339" fill="#0a7554" font-size="20" font-weight="bold" text-anchor="middle">IPv4 + IPv6</text>
+<rect x="280" y="152" width="256" height="226" rx="18" fill="#fff6d0" filter="url(#shadow)"/>
+<circle cx="408" cy="206" r="38" fill="#d4a100" />
+<text x="408" y="217" fill="#fff" font-size="25" font-weight="bold" text-anchor="middle">MTN</text>
+<text x="408" y="267" class="fa dark" font-size="28" font-weight="bold" text-anchor="middle">ایرانسل</text>
+<text x="408" y="303" fill="#17314e" font-size="19" text-anchor="middle">APN: mtnirancell</text>
+<text x="408" y="339" fill="#0a7554" font-size="20" font-weight="bold" text-anchor="middle">IPv4 + IPv6</text>
+<rect x="548" y="152" width="256" height="226" rx="18" fill="#ffe5f2" filter="url(#shadow)"/>
+<circle cx="676" cy="206" r="38" fill="#a41878" />
+<text x="676" y="217" fill="#fff" font-size="25" font-weight="bold" text-anchor="middle">R</text>
+<text x="676" y="267" class="fa dark" font-size="28" font-weight="bold" text-anchor="middle">رایتل</text>
+<text x="676" y="303" fill="#17314e" font-size="19" text-anchor="middle">APN: RighTel</text>
+<text x="676" y="339" fill="#0a7554" font-size="20" font-weight="bold" text-anchor="middle">IPv4 + IPv6</text>
+<rect x="816" y="152" width="256" height="226" rx="18" fill="#fff0df" filter="url(#shadow)"/>
+<circle cx="944" cy="206" r="38" fill="#f2781c" />
+<text x="944" y="217" fill="#fff" font-size="25" font-weight="bold" text-anchor="middle">S</text>
+<text x="944" y="267" class="fa dark" font-size="28" font-weight="bold" text-anchor="middle">شاتل موبایل</text>
+<text x="944" y="303" fill="#17314e" font-size="19" text-anchor="middle">APN: shatelmobile</text>
+<text x="944" y="339" fill="#0a7554" font-size="20" font-weight="bold" text-anchor="middle">IPv4 + IPv6</text>
+<rect x="12" y="394" width="1056" height="53" rx="15" fill="#c5e2ff"/>
+<text x="540" y="429" class="fa dark" font-size="28" font-weight="bold" text-anchor="middle">شش مرحله نصب پروفایل در iOS</text>
+<rect x="12" y="465" width="344" height="368" rx="22" fill="url(#panel)" filter="url(#shadow)"/>
+<circle cx="314" cy="500" r="25" fill="#0861bd"/>
+<text x="314" y="509" text-anchor="middle" fill="white" font-size="26" font-weight="bold">۱</text>
+<text x="178" y="509" text-anchor="middle" class="fa dark" font-size="23" font-weight="bold">دریافت فایل مناسب</text>
+<text x="184" y="544" text-anchor="middle" class="fa small">پروفایل اپراتور خود را باز کنید</text>
+<rect x="90" y="564" width="190" height="251" rx="29" fill="#171b25"/>
+<rect x="99" y="578" width="172" height="227" rx="21" fill="#f8fbff"/>
+<rect x="150" y="583" width="70" height="11" rx="6" fill="#171b25"/>
+<text x="113" y="598" fill="#343b47" font-size="13">9:41</text>
+<rect x="112" y="627" width="147" height="50" rx="11" fill="#e0efff" stroke="#b9d8ff"/>
+<text x="185" y="658" fill="#0a3e84" text-anchor="middle" font-size="14" font-weight="bold">Download .mobileconfig</text>
+<rect x="117" y="697" width="136" height="13" rx="6" fill="#d8e5f3"/>
+<rect x="117" y="721" width="122" height="13" rx="6" fill="#d8e5f3"/>
+<rect x="117" y="745" width="128" height="13" rx="6" fill="#d8e5f3"/>
+<circle cx="185" cy="794" r="4" fill="#afbbc9"/>
+<rect x="368" y="465" width="344" height="368" rx="22" fill="url(#panel)" filter="url(#shadow)"/>
+<circle cx="670" cy="500" r="25" fill="#0861bd"/>
+<text x="670" y="509" text-anchor="middle" fill="white" font-size="26" font-weight="bold">۲</text>
+<text x="534" y="509" text-anchor="middle" class="fa dark" font-size="23" font-weight="bold">تأیید دریافت</text>
+<text x="540" y="544" text-anchor="middle" class="fa small">در صورت درخواست، Allow را بزنید</text>
+<rect x="446" y="564" width="190" height="251" rx="29" fill="#171b25"/>
+<rect x="455" y="578" width="172" height="227" rx="21" fill="#f8fbff"/>
+<rect x="506" y="583" width="70" height="11" rx="6" fill="#171b25"/>
+<text x="469" y="598" fill="#343b47" font-size="13">9:41</text>
+<rect x="468" y="627" width="147" height="50" rx="11" fill="#e0efff" stroke="#b9d8ff"/>
+<text x="541" y="658" fill="#0a3e84" text-anchor="middle" font-size="14" font-weight="bold">Allow profile download</text>
+<rect x="473" y="697" width="136" height="13" rx="6" fill="#d8e5f3"/>
+<rect x="473" y="721" width="122" height="13" rx="6" fill="#d8e5f3"/>
+<rect x="473" y="745" width="128" height="13" rx="6" fill="#d8e5f3"/>
+<circle cx="541" cy="794" r="4" fill="#afbbc9"/>
+<rect x="724" y="465" width="344" height="368" rx="22" fill="url(#panel)" filter="url(#shadow)"/>
+<circle cx="1026" cy="500" r="25" fill="#0861bd"/>
+<text x="1026" y="509" text-anchor="middle" fill="white" font-size="26" font-weight="bold">۳</text>
+<text x="890" y="509" text-anchor="middle" class="fa dark" font-size="23" font-weight="bold">ورود به تنظیمات</text>
+<text x="896" y="544" text-anchor="middle" class="fa small">Settings → Profile Downloaded</text>
+<rect x="802" y="564" width="190" height="251" rx="29" fill="#171b25"/>
+<rect x="811" y="578" width="172" height="227" rx="21" fill="#f8fbff"/>
+<rect x="862" y="583" width="70" height="11" rx="6" fill="#171b25"/>
+<text x="825" y="598" fill="#343b47" font-size="13">9:41</text>
+<rect x="824" y="627" width="147" height="50" rx="11" fill="#e0efff" stroke="#b9d8ff"/>
+<text x="897" y="658" fill="#0a3e84" text-anchor="middle" font-size="14" font-weight="bold">Profile Downloaded</text>
+<rect x="829" y="697" width="136" height="13" rx="6" fill="#d8e5f3"/>
+<rect x="829" y="721" width="122" height="13" rx="6" fill="#d8e5f3"/>
+<rect x="829" y="745" width="128" height="13" rx="6" fill="#d8e5f3"/>
+<circle cx="897" cy="794" r="4" fill="#afbbc9"/>
+<rect x="12" y="850" width="344" height="368" rx="22" fill="url(#panel)" filter="url(#shadow)"/>
+<circle cx="314" cy="885" r="25" fill="#0861bd"/>
+<text x="314" y="894" text-anchor="middle" fill="white" font-size="26" font-weight="bold">۴</text>
+<text x="178" y="894" text-anchor="middle" class="fa dark" font-size="23" font-weight="bold">بررسی و نصب</text>
+<text x="184" y="929" text-anchor="middle" class="fa small">جزئیات را ببینید؛ Install را بزنید</text>
+<rect x="90" y="949" width="190" height="251" rx="29" fill="#171b25"/>
+<rect x="99" y="963" width="172" height="227" rx="21" fill="#f8fbff"/>
+<rect x="150" y="968" width="70" height="11" rx="6" fill="#171b25"/>
+<text x="113" y="983" fill="#343b47" font-size="13">9:41</text>
+<rect x="112" y="1012" width="147" height="50" rx="11" fill="#e0efff" stroke="#b9d8ff"/>
+<text x="185" y="1043" fill="#0a3e84" text-anchor="middle" font-size="14" font-weight="bold">Install Profile</text>
+<rect x="117" y="1082" width="136" height="13" rx="6" fill="#d8e5f3"/>
+<rect x="117" y="1106" width="122" height="13" rx="6" fill="#d8e5f3"/>
+<rect x="117" y="1130" width="128" height="13" rx="6" fill="#d8e5f3"/>
+<circle cx="185" cy="1179" r="4" fill="#afbbc9"/>
+<rect x="368" y="850" width="344" height="368" rx="22" fill="url(#panel)" filter="url(#shadow)"/>
+<circle cx="670" cy="885" r="25" fill="#0861bd"/>
+<text x="670" y="894" text-anchor="middle" fill="white" font-size="26" font-weight="bold">۵</text>
+<text x="534" y="894" text-anchor="middle" class="fa dark" font-size="23" font-weight="bold">تأیید با رمز</text>
+<text x="540" y="929" text-anchor="middle" class="fa small">رمز آیفون و نصب را تأیید کنید</text>
+<rect x="446" y="949" width="190" height="251" rx="29" fill="#171b25"/>
+<rect x="455" y="963" width="172" height="227" rx="21" fill="#f8fbff"/>
+<rect x="506" y="968" width="70" height="11" rx="6" fill="#171b25"/>
+<text x="469" y="983" fill="#343b47" font-size="13">9:41</text>
+<rect x="468" y="1012" width="147" height="50" rx="11" fill="#e0efff" stroke="#3c77d0"/>
+<text x="541" y="1043" fill="#0a3e84" text-anchor="middle" font-size="14" font-weight="bold">Enter Passcode</text>
+<rect x="473" y="1082" width="136" height="13" rx="6" fill="#d8e5f3"/>
+<rect x="473" y="1106" width="122" height="13" rx="6" fill="#d8e5f3"/>
+<rect x="473" y="1130" width="128" height="13" rx="6" fill="#d8e5f3"/>
+<circle cx="541" cy="1179" r="4" fill="#afbbc9"/>
+<rect x="724" y="850" width="344" height="368" rx="22" fill="url(#panel)" filter="url(#shadow)"/>
+<circle cx="1026" cy="885" r="25" fill="#0861bd"/>
+<text x="1026" y="894" text-anchor="middle" fill="white" font-size="26" font-weight="bold">۶</text>
+<text x="890" y="894" text-anchor="middle" class="fa dark" font-size="23" font-weight="bold">آزمایش IPv6</text>
+<text x="896" y="929" text-anchor="middle" class="fa small">Wi-Fi و VPN خاموش، سپس تست کنید</text>
+<rect x="802" y="949" width="190" height="251" rx="29" fill="#171b25"/>
+<rect x="811" y="963" width="172" height="227" rx="21" fill="#f8fbff"/>
+<rect x="862" y="968" width="70" height="11" rx="6" fill="#171b25"/>
+<text x="825" y="983" fill="#343b47" font-size="13">9:41</text>
+<rect x="824" y="1012" width="147" height="50" rx="11" fill="#e6f7f1" stroke="#b9d8ff"/>
+<text x="897" y="1043" fill="#0a3e84" text-anchor="middle" font-size="14" font-weight="bold">test-ipv6.com</text>
+<rect x="829" y="1082" width="136" height="13" rx="6" fill="#d8e5f3"/>
+<rect x="829" y="1106" width="122" height="13" rx="6" fill="#d8e5f3"/>
+<rect x="829" y="1130" width="128" height="13" rx="6" fill="#d8e5f3"/>
+<circle cx="897" cy="1179" r="4" fill="#afbbc9"/>
+<rect x="12" y="1246" width="520" height="181" rx="21" fill="#daf9ef"/>
+<text x="272" y="1290" text-anchor="middle" font-size="28" font-weight="bold" fill="#08734e" class="fa">تست اتصال پس از نصب</text>
+<text x="272" y="1331" text-anchor="middle" font-size="24" fill="#144f71">test-ipv6.com</text>
+<text x="272" y="1369" text-anchor="middle" font-size="23" fill="#144f71">api6.ipify.org</text>
+<text x="272" y="1406" text-anchor="middle" font-size="19" fill="#2a5869" class="fa">Wi-Fi و VPN را خاموش کنید</text>
+<rect x="544" y="1246" width="524" height="181" rx="21" fill="#fff0d6"/>
+<text x="805" y="1290" text-anchor="middle" font-size="28" font-weight="bold" fill="#a26000" class="fa">نکات ضروری</text>
+<text x="805" y="1330" text-anchor="middle" font-size="19" fill="#553e20" class="fa">نصب پروفایل، دریافت IPv6 را تضمین نمی‌کند</text>
+<text x="805" y="1368" text-anchor="middle" font-size="19" fill="#553e20" class="fa">پشتیبانی واقعی به شبکه اپراتور وابسته است</text>
+<text x="805" y="1406" text-anchor="middle" font-size="19" fill="#553e20" class="fa">پروفایل‌های حاضر غیررسمی و بدون امضا هستند</text>
+<rect x="12" y="1441" width="1056" height="116" rx="20" fill="#fff" stroke="#bdd9f4"/>
+<text x="540" y="1480" text-anchor="middle" class="fa dark" font-size="23" font-weight="bold">اگر Profile Downloaded را نمی‌بینید:</text>
+<text x="540" y="1517" text-anchor="middle" font-size="23" fill="#0753ad">Settings → General → VPN &amp; Device Management</text>
+<text x="540" y="1544" text-anchor="middle" font-size="14" fill="#657888" class="fa">تصاویر شماتیک هستند؛ جهت نصب، پروفایل را در Settings بررسی کنید</text>
+</svg>

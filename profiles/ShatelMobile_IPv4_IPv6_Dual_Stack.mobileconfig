@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PayloadType</key>
+	<string>Configuration</string>
+	<key>PayloadVersion</key>
+	<integer>1</integer>
+	<key>PayloadIdentifier</key>
+	<string>org.local.iosapn.shatelmobile.dualstack</string>
+	<key>PayloadUUID</key>
+	<string>6B1DD8B3-9DCA-43B5-812A-A774A9F5BD58</string>
+	<key>PayloadDisplayName</key>
+	<string>Shatel Mobile - IPv4 + IPv6</string>
+	<key>PayloadDescription</key>
+	<string>User-created dual-stack cellular APN profile for Shatel Mobile. Not an operator-issued profile.</string>
+	<key>PayloadOrganization</key>
+	<string>User-created APN configuration (unofficial)</string>
+	<key>PayloadContent</key>
+	<array>
+		<dict>
+			<key>APNs</key>
+			<array>
+				<dict>
+					<key>Name</key>
+					<string>shatelmobile</string>
+					<key>AllowedProtocolMask</key>
+					<integer>3</integer>
+					<key>AllowedProtocolMaskInRoaming</key>
+					<integer>3</integer>
+					<key>AllowedProtocolMaskInDomesticRoaming</key>
+					<integer>3</integer>
+				</dict>
+			</array>
+			<key>PayloadType</key>
+			<string>com.apple.cellular</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+			<key>PayloadIdentifier</key>
+			<string>org.local.iosapn.shatelmobile.dualstack.cellular</string>
+			<key>PayloadUUID</key>
+			<string>1A8AC49C-2FE1-4047-AB76-2BA4594DB81E</string>
+			<key>PayloadDisplayName</key>
+			<string>Shatel Mobile Cellular Data</string>
+			<key>PayloadDescription</key>
+			<string>Sets the shatelmobile cellular data APN to allow IPv4 and IPv6. IPv6 availability is unverified by Shatel Mobile.</string>
+			<key>AttachAPN</key>
+			<dict>
+				<key>Name</key>
+				<string>shatelmobile</string>
+				<key>AllowedProtocolMask</key>
+				<integer>3</integer>
+			</dict>
+		</dict>
+	</array>
+</dict>
+</plist>

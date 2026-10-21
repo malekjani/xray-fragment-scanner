@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PayloadType</key>
+	<string>Configuration</string>
+	<key>PayloadVersion</key>
+	<integer>1</integer>
+	<key>PayloadIdentifier</key>
+	<string>org.local.iosapn.rightel.dualstack</string>
+	<key>PayloadUUID</key>
+	<string>A37063A8-3FE5-499F-9BB0-D4BDE31AC630</string>
+	<key>PayloadDisplayName</key>
+	<string>RighTel - IPv4 + IPv6</string>
+	<key>PayloadDescription</key>
+	<string>User-created dual-stack cellular APN profile for RighTel. Not an operator-issued profile.</string>
+	<key>PayloadOrganization</key>
+	<string>User-created APN configuration (unofficial)</string>
+	<key>PayloadContent</key>
+	<array>
+		<dict>
+			<key>APNs</key>
+			<array>
+				<dict>
+					<key>Name</key>
+					<string>RighTel</string>
+					<key>AllowedProtocolMask</key>
+					<integer>3</integer>
+					<key>AuthenticationType</key>
+					<string>CHAP</string>
+					<key>AllowedProtocolMaskInRoaming</key>
+					<integer>3</integer>
+					<key>AllowedProtocolMaskInDomesticRoaming</key>
+					<integer>3</integer>
+				</dict>
+			</array>
+			<key>PayloadType</key>
+			<string>com.apple.cellular</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+			<key>PayloadIdentifier</key>
+			<string>org.local.iosapn.rightel.dualstack.cellular</string>
+			<key>PayloadUUID</key>
+			<string>6F17AB01-FB91-41E1-8611-B555B11CCA4F</string>
+			<key>PayloadDisplayName</key>
+			<string>RighTel Cellular Data</string>
+			<key>PayloadDescription</key>
+			<string>Sets the RighTel cellular data APN to allow IPv4 and IPv6. IPv6 availability depends on network support.</string>
+		</dict>
+	</array>
+</dict>
+</plist>
